@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -938,6 +937,17 @@
             flex-wrap: wrap;
         }
 
+        .period-select {
+            flex: 1;
+            padding: 14px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 14px;
+            min-width: 120px;
+            min-height: 50px;
+            background: white;
+        }
+
         .period-input {
             flex: 1;
             padding: 14px;
@@ -958,6 +968,11 @@
             font-weight: 500;
             font-size: 14px;
             min-height: 50px;
+        }
+
+        .period-btn.active {
+            background: var(--primary);
+            color: white;
         }
 
         .stats-grid {
@@ -1021,12 +1036,27 @@
             font-weight: 500;
         }
 
+        .diagnosis-date {
+            color: var(--text-secondary);
+            font-size: 12px;
+            margin-left: 8px;
+        }
+
         .diagnosis-count {
             background: var(--primary);
             color: white;
-            padding: 6px 12px;
+            padding: 4px 10px;
             border-radius: 20px;
             font-size: 12px;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .diagnosis-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
         /* Модальные окна */
@@ -1380,9 +1410,24 @@
             
             <!-- Выбор периода -->
             <div class="period-selector">
-                <input type="date" id="periodStart" class="period-input" onchange="updateStats()">
-                <input type="date" id="periodEnd" class="period-input" onchange="updateStats()">
+                <select id="monthSelect" class="period-select" onchange="setMonthPeriod()">
+                    <option value="0">Январь</option>
+                    <option value="1">Февраль</option>
+                    <option value="2">Март</option>
+                    <option value="3">Апрель</option>
+                    <option value="4">Май</option>
+                    <option value="5">Июнь</option>
+                    <option value="6">Июль</option>
+                    <option value="7">Август</option>
+                    <option value="8">Сентябрь</option>
+                    <option value="9">Октябрь</option>
+                    <option value="10">Ноябрь</option>
+                    <option value="11">Декабрь</option>
+                </select>
+                <input type="date" id="periodStart" class="period-input" onchange="setCustomPeriod()">
+                <input type="date" id="periodEnd" class="period-input" onchange="setCustomPeriod()">
                 <button class="period-btn" onclick="setLastMonth()">Месяц</button>
+                <button class="period-btn" onclick="setHalfYear()">6 мес</button>
             </div>
             
             <div class="stats-period" id="statsPeriod"></div>
@@ -1506,6 +1551,27 @@
             
             document.getElementById('periodEnd').value = today.toISOString().split('T')[0];
             document.getElementById('periodStart').value = sixMonthsAgo.toISOString().split('T')[0];
+            
+            // Устанавливаем текущий месяц в селекте
+            const currentMonth = today.getMonth();
+            document.getElementById('monthSelect').value = currentMonth;
+        }
+
+        function setMonthPeriod() {
+            const month = parseInt(document.getElementById('monthSelect').value);
+            const year = new Date().getFullYear();
+            
+            const startDate = new Date(year, month, 1);
+            const endDate = new Date(year, month + 1, 0);
+            
+            document.getElementById('periodStart').value = startDate.toISOString().split('T')[0];
+            document.getElementById('periodEnd').value = endDate.toISOString().split('T')[0];
+            
+            updateStats();
+        }
+
+        function setCustomPeriod() {
+            updateStats();
         }
 
         function setLastMonth() {
@@ -1515,6 +1581,18 @@
             
             document.getElementById('periodEnd').value = today.toISOString().split('T')[0];
             document.getElementById('periodStart').value = monthAgo.toISOString().split('T')[0];
+            
+            updateStats();
+        }
+
+        function setHalfYear() {
+            const today = new Date();
+            const sixMonthsAgo = new Date();
+            sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+            
+            document.getElementById('periodEnd').value = today.toISOString().split('T')[0];
+            document.getElementById('periodStart').value = sixMonthsAgo.toISOString().split('T')[0];
+            
             updateStats();
         }
 
@@ -2274,7 +2352,7 @@
             }
         }
 
-        // Статистика за период - ИСПРАВЛЕНО!
+        // Статистика за период
         function updateStats() {
             const startDate = new Date(document.getElementById('periodStart').value);
             const endDate = new Date(document.getElementById('periodEnd').value);
@@ -2289,26 +2367,24 @@
                 filteredEntries = filteredEntries.filter(e => e.childIndex === selectedChild);
             }
             
-            const diagnosisCount = {};
+            const diagnosisList = []; // Список всех диагнозов с датами
             const antibioticsList = [];
-            const illnessSet = new Set(); // Для подсчета уникальных заболеваний
+            const illnessSet = new Set();
             
             filteredEntries.forEach(e => {
-                // Считаем болезни (уникальные по дате и диагнозу)
+                // Считаем болезни
                 if (e.title && e.title !== 'Осмотр') {
-                    // В режиме "Все" - учитываем ребенка + дату + диагноз
-                    // В режиме одного ребенка - учитываем дату + диагноз
                     const key = (selectedChild === 'all' ? e.childIndex + '_' : '') + 
                                 new Date(e.date).toDateString() + '_' + e.title;
                     illnessSet.add(key);
                     
-                    // Для списка диагнозов
-                    const diagKey = e.title + (selectedChild === 'all' ? '_' + e.childIndex : '');
-                    diagnosisCount[diagKey] = {
+                    // Добавляем в список диагнозов с датой
+                    diagnosisList.push({
                         name: e.title,
                         child: children[e.childIndex]?.name,
-                        count: (diagnosisCount[diagKey]?.count || 0) + 1
-                    };
+                        date: e.date,
+                        childIndex: e.childIndex
+                    });
                 }
                 
                 // Антибиотики
@@ -2325,31 +2401,42 @@
                 }
             });
             
-            // Количество болезней = размер Set'а с уникальными заболеваниями
             document.getElementById('totalIllnesses').innerHTML = illnessSet.size;
             document.getElementById('totalAntibiotics').innerHTML = antibioticsList.length;
             
-            // Диагнозы - каждый в отдельной строке
+            // Диагнозы - сортируем по дате (сначала новые)
+            diagnosisList.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
             let diagnosisHtml = '';
-            Object.values(diagnosisCount).forEach(d => {
+            diagnosisList.forEach(d => {
+                const date = new Date(d.date).toLocaleDateString();
                 diagnosisHtml += `
                     <div class="diagnosis-item">
-                        <span class="diagnosis-name">${d.name} ${selectedChild === 'all' ? '· ' + d.child : ''}</span>
-                        <span class="diagnosis-count">${d.count}</span>
+                        <div class="diagnosis-info">
+                            <span class="diagnosis-name">${d.name}</span>
+                            <span class="diagnosis-date">${date}</span>
+                            ${selectedChild === 'all' ? `<span style="color:var(--primary); font-size:12px;">· ${d.child}</span>` : ''}
+                        </div>
                     </div>
                 `;
             });
             document.getElementById('diagnosisList').innerHTML = diagnosisHtml || '<div class="diagnosis-item">Нет диагнозов</div>';
             
-            // Антибиотики - каждый в отдельной строке
+            // Антибиотики - сортируем по дате
             antibioticsList.sort((a, b) => new Date(b.date) - new Date(a.date));
             document.getElementById('antibioticsList').innerHTML = antibioticsList.length ?
-                antibioticsList.map(a => `
-                    <div class="diagnosis-item">
-                        <span class="diagnosis-name">${a.name} ${selectedChild === 'all' ? '· ' + a.child : ''}</span>
-                        <span class="diagnosis-count">${new Date(a.date).toLocaleDateString()}</span>
-                    </div>
-                `).join('') :
+                antibioticsList.map(a => {
+                    const date = new Date(a.date).toLocaleDateString();
+                    return `
+                        <div class="diagnosis-item">
+                            <div class="diagnosis-info">
+                                <span class="diagnosis-name">${a.name}</span>
+                                <span class="diagnosis-date">${date}</span>
+                                ${selectedChild === 'all' ? `<span style="color:var(--primary); font-size:12px;">· ${a.child}</span>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('') :
                 '<div class="diagnosis-item">Нет антибиотиков</div>';
             
             document.getElementById('statsPeriod').innerHTML = 
