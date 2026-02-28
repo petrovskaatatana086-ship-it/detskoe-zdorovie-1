@@ -1,337 +1,2475 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Детское здоровье - Семейное приложение</title>
-    <!-- Библиотеки -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Детское здоровье</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#34C759">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Детское здоровье">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Детское здоровье">
+    <meta name="msapplication-TileColor" content="#34C759">
+    
+    <!-- Иконки для PWA (эмоджи как иконка) -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%2334C759'/%3E%3Ctext x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='Arial'%3E👶%3C/text%3E%3C/svg%3E">
+    <link rel="icon" type="image/png" sizes="192x192" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%2334C759'/%3E%3Ctext x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='Arial'%3E👶%3C/text%3E%3C/svg%3E">
+    
+    <!-- Манифест для PWA -->
+    <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%D0%94%D0%B5%D1%82%D1%81%D0%BA%D0%BE%D0%B5%20%D0%B7%D0%B4%D0%BE%D1%80%D0%BE%D0%B2%D1%8C%D0%B5%22%2C%22short_name%22%3A%22%D0%97%D0%B4%D0%BE%D1%80%D0%BE%D0%B2%D1%8C%D0%B5%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23F2F2F7%22%2C%22theme_color%22%3A%22%2334C759%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data:image/svg+xml,%253Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%253E%253Ccircle cx='50' cy='50' r='45' fill='%252334C759'/%253E%253Ctext x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='Arial'%253E%25F0%259F%2591%25B6%253C/text%253E%253C/svg%253E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image/svg+xml%22%7D%5D%7D">
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap');
-        body { font-family: 'Nunito', sans-serif; background-color: #F8FAFC; overflow-x: hidden; }
-        .m-card { background: white; border-radius: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); transition: all 0.2s; border: 1px solid #f1f5f9; }
-        .m-card:active { transform: scale(0.98); }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-        .btn-primary { background-color: #10B981; color: white; font-weight: 900; border-radius: 1rem; transition: all 0.2s; }
-        .btn-primary:hover { background-color: #059669; transform: translateY(-2px); }
-        .chart-container { position: relative; width: 100%; height: 300px; max-width: 600px; margin: 0 auto; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-page { animation: fadeIn 0.4s ease-out forwards; }
+        /* CSS Variables - легкая смена цветов */
+        :root {
+            --primary: #34C759;
+            --primary-light: #E5F5E8;
+            --primary-dark: #2B8540;
+            --secondary: #FF9F0A;
+            --secondary-light: #FFF3E0;
+            --danger: #FF3B30;
+            --danger-light: #FFEBEE;
+            --text: #1C1C1E;
+            --text-secondary: #8E8E93;
+            --background: #F2F2F7;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --border: rgba(60, 60, 67, 0.08);
+            --glass: rgba(255, 255, 255, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            padding: 12px;
+            min-height: 100vh;
+        }
+
+        .app {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* Эффект стекла для заголовков */
+        .glass-header {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 14px;
+            padding: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            color: var(--text);
+        }
+
+        h2 {
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            margin-bottom: 12px;
+        }
+
+        h3 {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Переключатель детей */
+        .children-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            overflow-x: auto;
+            padding: 4px 0;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .children-selector::-webkit-scrollbar {
+            display: none;
+        }
+
+        .child-item {
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 30px;
+            padding: 4px 4px 4px 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            flex-shrink: 0;
+            min-height: 44px;
+        }
+
+        .child-btn {
+            padding: 8px 12px;
+            border: none;
+            background: none;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            min-height: 44px;
+        }
+
+        .child-btn.active {
+            color: var(--primary);
+        }
+
+        .child-btn.all-btn {
+            color: var(--secondary);
+        }
+
+        .child-btn.all-btn.active {
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        .edit-child-btn, .delete-child-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            background: transparent;
+            transition: all 0.2s;
+            min-height: 40px;
+            min-width: 40px;
+        }
+
+        .edit-child-btn:hover, .delete-child-btn:hover {
+            background: var(--background);
+        }
+
+        .add-child-btn {
+            padding: 12px 20px;
+            border: 1px dashed var(--primary);
+            border-radius: 30px;
+            background: white;
+            color: var(--primary);
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+            min-height: 44px;
+        }
+
+        /* Карточка статистики */
+        .stats-card {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 20px;
+            padding: 20px;
+            color: white;
+            margin-bottom: 12px;
+            box-shadow: 0 8px 20px rgba(52, 199, 89, 0.3);
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+            font-weight: 400;
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        /* Строки для каждого ребенка в режиме "Все" */
+        .child-stats-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .child-stats-row:last-child {
+            border-bottom: none;
+        }
+
+        .child-name {
+            font-weight: 600;
+            font-size: 15px;
+            min-width: 70px;
+        }
+
+        .child-stat-items {
+            display: flex;
+            flex: 1;
+            justify-content: space-around;
+            text-align: center;
+            gap: 4px;
+        }
+
+        .child-stat {
+            flex: 1;
+            font-size: 13px;
+        }
+
+        .child-stat-label {
+            font-size: 10px;
+            opacity: 0.7;
+            margin-bottom: 2px;
+        }
+
+        /* Плановые прививки */
+        .planned-vaccines {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border-radius: 14px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+
+        .planned-vaccine-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 14px;
+        }
+
+        .planned-vaccine-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Карточка болезни */
+        .illness-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+        }
+
+        .illness-card h3 {
+            color: var(--secondary);
+            margin-bottom: 16px;
+        }
+
+        .illness-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .illness-row input, .illness-row select, .illness-row textarea {
+            flex: 1;
+            padding: 14px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 15px;
+            background: white;
+            font-family: inherit;
+            min-height: 50px;
+        }
+
+        .illness-row input[type="date"] {
+            flex: 0 0 auto;
+            width: 150px;
+        }
+
+        .illness-row input[type="number"] {
+            flex: 0 0 auto;
+            width: 100px;
+        }
+
+        .temp-range {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--background);
+            padding: 6px 10px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            min-height: 50px;
+        }
+
+        .temp-range span {
+            font-size: 13px;
+            color: var(--text-secondary);
+            min-width: 55px;
+        }
+
+        .temp-range input {
+            width: 70px;
+            padding: 8px;
+            border: none;
+            background: transparent;
+            text-align: center;
+            min-height: 40px;
+        }
+
+        .temp-days {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--background);
+            padding: 8px 12px;
+            border-radius: 12px;
+            flex: 2;
+            min-height: 50px;
+        }
+
+        .temp-days label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .temp-days input[type="number"] {
+            width: 70px;
+            padding: 8px;
+            min-height: 40px;
+        }
+
+        .healthy-check {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--background);
+            padding: 8px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            min-height: 50px;
+        }
+
+        .doctor-prescription {
+            background: var(--background);
+            padding: 16px;
+            border-radius: 16px;
+            margin: 12px 0;
+        }
+
+        .prescription-header {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .prescription-header textarea {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            resize: vertical;
+            min-height: 80px;
+            font-size: 15px;
+        }
+
+        .prescription-photo label {
+            background: var(--secondary);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            display: inline-block;
+            min-height: 44px;
+        }
+
+        .prescription-photo input {
+            display: none;
+        }
+
+        .photo-preview {
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 12px;
+            margin-top: 12px;
+        }
+
+        .medicines-list {
+            background: var(--background);
+            padding: 16px;
+            border-radius: 16px;
+            margin: 12px 0;
+        }
+
+        .medicine-item {
+            display: flex;
+            gap: 8px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .medicine-item:last-child {
+            border-bottom: none;
+        }
+
+        .medicine-item input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            min-height: 44px;
+        }
+
+        .antibiotic-check {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            min-width: 100px;
+            font-size: 14px;
+        }
+
+        .add-medicine-btn {
+            background: transparent;
+            border: 1px dashed var(--secondary);
+            color: var(--secondary);
+            padding: 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-top: 12px;
+            width: 100%;
+            font-weight: 500;
+            font-size: 15px;
+            min-height: 50px;
+        }
+
+        .illness-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .save-illness-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            flex: 2;
+            font-size: 16px;
+            min-height: 54px;
+        }
+
+        .cancel-btn {
+            background: var(--background);
+            color: var(--text);
+            border: none;
+            padding: 16px;
+            border-radius: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            flex: 1;
+            font-size: 16px;
+            min-height: 54px;
+        }
+
+        /* Блок прививок */
+        .vaccine-section {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .vaccine-section h3 {
+            color: var(--primary);
+        }
+
+        .vaccine-form {
+            background: var(--background);
+            padding: 16px;
+            border-radius: 16px;
+            margin-bottom: 16px;
+        }
+
+        .vaccine-form input, .vaccine-form select {
+            width: 100%;
+            padding: 14px;
+            margin: 6px 0;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 15px;
+            min-height: 50px;
+        }
+
+        .vaccine-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .revaccination {
+            background: white;
+            padding: 12px;
+            border-radius: 12px;
+            margin-top: 8px;
+        }
+
+        .add-vaccine-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 12px;
+            font-size: 16px;
+            min-height: 54px;
+        }
+
+        .vaccine-history {
+            max-height: 300px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .vaccine-item {
+            background: var(--background);
+            padding: 16px;
+            border-radius: 12px;
+            margin: 8px 0;
+            position: relative;
+            min-height: 80px;
+        }
+
+        .vaccine-item .edit-vaccine-btn {
+            position: absolute;
+            top: 12px;
+            right: 50px;
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .vaccine-item .delete-vaccine-btn {
+            position: absolute;
+            top: 12px;
+            right: 8px;
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 50%;
+            background: var(--danger);
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        /* Аптечка */
+        .pharmacy-section {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .pharmacy-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .pharmacy-header h2 {
+            margin: 0;
+        }
+
+        .add-medicine-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 16px;
+            min-height: 44px;
+        }
+
+        .medicine-group {
+            background: var(--background);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .medicine-group-title {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .medicine-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .medicine-row:last-child {
+            border-bottom: none;
+        }
+
+        .medicine-check {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .medicine-name {
+            flex: 2;
+            font-size: 15px;
+        }
+
+        .medicine-name.bought {
+            text-decoration: line-through;
+            color: var(--text-secondary);
+        }
+
+        .medicine-expiry {
+            flex: 1;
+            font-size: 12px;
+            color: var(--danger);
+        }
+
+        .medicine-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .edit-medicine-btn, .delete-medicine-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            font-size: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .edit-medicine-btn {
+            color: var(--primary);
+        }
+
+        .delete-medicine-btn {
+            color: var(--danger);
+        }
+
+        .to-buy-section {
+            background: var(--danger-light);
+            border-radius: 14px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .to-buy-title {
+            font-weight: 600;
+            color: var(--danger);
+            margin-bottom: 12px;
+        }
+
+        .to-buy-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px dashed rgba(255, 59, 48, 0.2);
+            min-height: 44px;
+        }
+
+        /* Подробная история болезней */
+        .detailed-history {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .detailed-history h3 {
+            color: var(--secondary);
+        }
+
+        /* Поиск - только в истории */
+        .search-section {
+            background: var(--background);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            font-size: 16px;
+            background: white;
+            min-height: 50px;
+        }
+
+        .history-list {
+            max-height: 400px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .history-item {
+            background: var(--background);
+            padding: 18px;
+            border-radius: 14px;
+            margin: 12px 0;
+            position: relative;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-right: 80px;
+        }
+
+        .history-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .history-child {
+            color: var(--primary);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .history-date {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .history-temps {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+
+        .history-temp-item {
+            background: var(--secondary-light);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: var(--secondary);
+        }
+
+        .history-medicines {
+            background: var(--primary-light);
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+
+        .history-prescription {
+            background: var(--background);
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 13px;
+            color: var(--text);
+            font-style: italic;
+        }
+
+        .history-actions {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .history-edit-btn, .history-delete-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            font-size: 16px;
+        }
+
+        .history-edit-btn {
+            color: var(--primary);
+        }
+
+        .history-delete-btn {
+            color: var(--danger);
+        }
+
+        /* Правая панель - Статистика */
+        .stats-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .period-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .period-input {
+            flex: 1;
+            padding: 14px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 14px;
+            min-width: 120px;
+            min-height: 50px;
+        }
+
+        .period-btn {
+            padding: 14px 20px;
+            border: 1px solid var(--primary);
+            border-radius: 12px;
+            background: white;
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            min-height: 50px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 16px 0;
+        }
+
+        .stat-card {
+            background: var(--background);
+            padding: 18px;
+            border-radius: 14px;
+            text-align: center;
+        }
+
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-card .label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+
+        .stats-period {
+            background: var(--background);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 16px;
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .diagnosis-list {
+            background: var(--background);
+            border-radius: 14px;
+            padding: 12px;
+            margin: 16px 0;
+            max-height: 250px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .diagnosis-item {
+            background: white;
+            padding: 14px;
+            border-radius: 10px;
+            margin: 6px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 50px;
+        }
+
+        .diagnosis-name {
+            font-weight: 500;
+        }
+
+        .diagnosis-count {
+            background: var(--primary);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        /* Модальные окна */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-content input, .modal-content select {
+            width: 100%;
+            padding: 16px;
+            margin: 8px 0;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 16px;
+            min-height: 54px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-actions button {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            min-height: 54px;
+        }
+
+        .save-btn {
+            background: var(--primary);
+            color: white;
+        }
+
+        .cancel-btn {
+            background: var(--background);
+            color: var(--text);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--text);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 30px;
+            font-size: 15px;
+            animation: slideUp 0.3s;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            min-height: 50px;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translate(-50%, 100px);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
+
+        /* Мобильная оптимизация */
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+                overflow: hidden;
+                height: 100vh;
+            }
+            
+            .app {
+                height: 100vh;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                padding: 0 0 20px 0;
+                gap: 8px;
+            }
+            
+            .glass-header {
+                border-radius: 0 0 14px 14px;
+                margin-top: 0;
+                padding: 16px 16px 12px;
+            }
+            
+            .stats-card, .illness-card, .vaccine-section, .pharmacy-section, .detailed-history, .stats-panel {
+                border-radius: 16px;
+                margin: 0 12px 8px 12px;
+            }
+            
+            .children-selector {
+                padding: 8px 12px;
+                margin-bottom: 4px;
+            }
+        }
+
+        /* Десктопная версия */
+        @media (min-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            
+            .app {
+                max-width: 1200px;
+                display: grid;
+                grid-template-columns: 1fr 380px;
+                gap: 20px;
+            }
+            
+            .modal-content {
+                max-width: 500px;
+            }
+            
+            .left-column {
+                max-height: calc(100vh - 40px);
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                padding-right: 8px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div id="root"></div>
+    <div class="app">
+        <!-- Левая колонка -->
+        <div class="left-column">
+            <!-- Шапка -->
+            <div class="glass-header">
+                <h1>👶 Детское здоровье</h1>
+            </div>
+            
+            <!-- Дети -->
+            <div class="children-selector" id="childrenSelector"></div>
+            
+            <!-- Статистика ребенка -->
+            <div class="stats-card" id="childStats">
+                <!-- Заголовок для режима "Все" или обычный режим -->
+                <div class="stats-row" id="statsHeader">
+                    <div class="stat-item">
+                        <div class="stat-label">Температура</div>
+                        <div class="stat-value" id="currentTemp">36.6°C</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Состояние</div>
+                        <div class="stat-value" id="currentState">Здоров</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Вес</div>
+                        <div class="stat-value" id="currentWeight">--</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Болеет</div>
+                        <div class="stat-value" id="illnessDays">0</div>
+                    </div>
+                </div>
+                
+                <!-- Контейнер для строк детей в режиме "Все" -->
+                <div id="allChildrenStats" style="display: none;"></div>
+                
+                <!-- Плановые прививки -->
+                <div class="planned-vaccines" id="plannedVaccines">
+                    <div style="font-size:13px; margin-bottom:8px; opacity:0.9;">📅 Плановые прививки:</div>
+                </div>
+            </div>
+            
+            <!-- Карточка болезни -->
+            <div class="illness-card">
+                <h3>🏥 Болезнь / Осмотр</h3>
+                
+                <input type="hidden" id="editingEntryId" value="">
+                
+                <select id="illnessChild">
+                    <option value="">👶 Выберите ребенка</option>
+                </select>
+                
+                <!-- Вес и дата -->
+                <div class="illness-row">
+                    <input type="number" id="illnessWeight" placeholder="Вес (кг)" step="0.1">
+                    <label class="healthy-check">
+                        <input type="checkbox" id="illnessHealthy"> ✅ Здоров
+                    </label>
+                    <input type="date" id="illnessDate" value="">
+                </div>
+                
+                <!-- 1-й день -->
+                <div class="illness-row">
+                    <div class="temp-range">
+                        <span>1-й день</span>
+                        <input type="number" id="temp1From" placeholder="от" value="36.6" step="0.1">
+                        <span>-</span>
+                        <input type="number" id="temp1To" placeholder="до" value="36.6" step="0.1">
+                    </div>
+                </div>
+                
+                <!-- 2-й день -->
+                <div class="illness-row">
+                    <div class="temp-range">
+                        <span>2-й день</span>
+                        <input type="number" id="temp2From" placeholder="от" value="36.6" step="0.1">
+                        <span>-</span>
+                        <input type="number" id="temp2To" placeholder="до" value="36.6" step="0.1">
+                    </div>
+                </div>
+                
+                <!-- 3-й день -->
+                <div class="illness-row">
+                    <div class="temp-range">
+                        <span>3-й день</span>
+                        <input type="number" id="temp3From" placeholder="от" value="36.6" step="0.1">
+                        <span>-</span>
+                        <input type="number" id="temp3To" placeholder="до" value="36.6" step="0.1">
+                    </div>
+                </div>
+                
+                <!-- Более 3 дней и диагноз -->
+                <div class="illness-row">
+                    <div class="temp-days">
+                        <label>
+                            <input type="checkbox" id="tempMoreThan3"> 🔥 >3 дней
+                        </label>
+                        <input type="number" id="tempDaysCount" placeholder="дней" min="1" value="4">
+                    </div>
+                    <input type="text" id="illnessTitle" placeholder="Диагноз" style="flex:2;">
+                </div>
+                
+                <!-- Назначения врача -->
+                <div class="doctor-prescription">
+                    <div class="prescription-header">
+                        <textarea id="prescriptionText" placeholder="Назначения врача..." rows="2"></textarea>
+                        <div class="prescription-photo">
+                            <label for="prescriptionPhoto">📸 Фото</label>
+                            <input type="file" id="prescriptionPhoto" accept="image/*" onchange="previewPrescriptionPhoto(event)">
+                        </div>
+                    </div>
+                    <div id="prescriptionPhotoPreview"></div>
+                </div>
+                
+                <!-- Лекарства -->
+                <div class="medicines-list" id="medicinesContainer">
+                    <div class="medicine-item" id="medicineTemplate">
+                        <input type="text" class="medicine-name-input" placeholder="Название лекарства">
+                        <label class="antibiotic-check">
+                            <input type="checkbox" class="antibiotic-checkbox"> Антибиотик
+                        </label>
+                    </div>
+                </div>
+                <button class="add-medicine-btn" onclick="addMedicineRow()">➕ Добавить лекарство</button>
+                
+                <!-- Кнопки -->
+                <div class="illness-actions">
+                    <button class="save-illness-btn" onclick="saveIllness()">Сохранить</button>
+                    <button class="cancel-btn" onclick="clearIllnessForm()">Очистить</button>
+                </div>
+            </div>
+            
+            <!-- Блок прививок -->
+            <div class="vaccine-section">
+                <h3>💉 Вакцинация</h3>
+                
+                <div class="vaccine-form">
+                    <input type="hidden" id="editingVaccineId" value="">
+                    
+                    <select id="vaccineChild">
+                        <option value="">👶 Выберите ребенка</option>
+                    </select>
+                    
+                    <input type="text" id="vaccineName" placeholder="Название прививки">
+                    
+                    <div class="vaccine-row">
+                        <input type="date" id="vaccineDate" value="">
+                        <select id="vaccineStatus">
+                            <option value="done">✅ Сделано</option>
+                            <option value="planned">📅 Запланировано</option>
+                        </select>
+                    </div>
+                    
+                    <div class="revaccination">
+                        <div class="vaccine-row">
+                            <input type="date" id="revaccinationDate" placeholder="Ревакцинация">
+                            <input type="number" id="vaccineTemp" placeholder="Температура" value="36.6" step="0.1">
+                        </div>
+                    </div>
+                    
+                    <button class="add-vaccine-btn" onclick="saveVaccine()">➕ Сохранить прививку</button>
+                </div>
+                
+                <h3>История прививок</h3>
+                <div class="vaccine-history" id="vaccineHistory"></div>
+            </div>
+            
+            <!-- Аптечка -->
+            <div class="pharmacy-section">
+                <div class="pharmacy-header">
+                    <h2>💊 Аптечка</h2>
+                    <button class="add-medicine-btn" onclick="showMedicineModal()">➕</button>
+                </div>
+                <div id="pharmacyList"></div>
+                
+                <div class="to-buy-section">
+                    <div class="to-buy-title">🛒 Нужно купить</div>
+                    <div id="shoppingList"></div>
+                </div>
+            </div>
+            
+            <!-- Подробная история с поиском -->
+            <div class="detailed-history">
+                <h3>📋 История болезней</h3>
+                
+                <!-- Поиск только здесь -->
+                <div class="search-section">
+                    <input type="text" class="search-input" id="searchInput" placeholder="🔍 Поиск по записям" onkeyup="updateIllnessHistory()">
+                </div>
+                
+                <div class="history-list" id="illnessHistory"></div>
+            </div>
+        </div>
+        
+        <!-- Правая панель - Статистика -->
+        <div class="stats-panel">
+            <h2>📊 Статистика</h2>
+            
+            <!-- Выбор периода -->
+            <div class="period-selector">
+                <input type="date" id="periodStart" class="period-input" onchange="updateStats()">
+                <input type="date" id="periodEnd" class="period-input" onchange="updateStats()">
+                <button class="period-btn" onclick="setLastMonth()">Месяц</button>
+            </div>
+            
+            <div class="stats-period" id="statsPeriod"></div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="value" id="totalIllnesses">0</div>
+                    <div class="label">Дней с температурой</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" id="totalAntibiotics">0</div>
+                    <div class="label">Антибиотики</div>
+                </div>
+            </div>
+            
+            <h3>🔬 Диагнозы</h3>
+            <div class="diagnosis-list" id="diagnosisList"></div>
+            
+            <h3>💊 Антибиотики</h3>
+            <div class="diagnosis-list" id="antibioticsList"></div>
+            
+            <!-- Экспорт -->
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button onclick="exportCSV()" style="flex:1; background:var(--primary); color:white; padding:16px; border:none; border-radius:14px; cursor:pointer; font-weight:600; font-size:16px; min-height:54px;">📥 CSV</button>
+                <button onclick="exportJSON()" style="flex:1; background:var(--secondary); color:white; padding:16px; border:none; border-radius:14px; cursor:pointer; font-weight:600; font-size:16px; min-height:54px;">💾 Бэкап</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модалки -->
+    <div id="childModal" class="modal" style="display:none;" onclick="if(event.target===this) closeChildModal()">
+        <div class="modal-content">
+            <h2 id="childModalTitle">👶 Добавить ребенка</h2>
+            <input type="hidden" id="editingChildId" value="">
+            <input type="text" id="childName" placeholder="Имя">
+            <input type="date" id="childBirthDate" placeholder="Дата рождения">
+            <input type="number" id="childWeight" placeholder="Вес (кг)" step="0.1">
+            <div class="modal-actions">
+                <button class="save-btn" onclick="saveChild()">Сохранить</button>
+                <button class="cancel-btn" onclick="closeChildModal()">Отмена</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="medicineModal" class="modal" style="display:none;" onclick="if(event.target===this) closeMedicineModal()">
+        <div class="modal-content">
+            <h2>💊 Добавить лекарство</h2>
+            <select id="medChild"></select>
+            <input type="text" id="medName" placeholder="Название">
+            <input type="date" id="medExpiry" placeholder="Срок годности">
+            <div class="modal-actions">
+                <button class="save-btn" onclick="saveMedicine()">Добавить</button>
+                <button class="cancel-btn" onclick="closeMedicineModal()">Отмена</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="editMedicineModal" class="modal" style="display:none;" onclick="if(event.target===this) closeEditMedicineModal()">
+        <div class="modal-content">
+            <h2>✏️ Редактировать лекарство</h2>
+            <input type="hidden" id="editMedId">
+            <select id="editMedChild"></select>
+            <input type="text" id="editMedName" placeholder="Название">
+            <input type="date" id="editMedExpiry" placeholder="Срок годности">
+            <div class="modal-actions">
+                <button class="save-btn" onclick="updateMedicine()">Сохранить</button>
+                <button class="cancel-btn" onclick="closeEditMedicineModal()">Отмена</button>
+            </div>
+        </div>
+    </div>
 
-    <!-- Firebase SDK (ES Modules) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, query, where, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    <script>
+        // Данные
+        let children = JSON.parse(localStorage.getItem('children')) || [];
+        let entries = JSON.parse(localStorage.getItem('entries')) || [];
+        let pharmacy = JSON.parse(localStorage.getItem('pharmacy')) || [];
+        let vaccines = JSON.parse(localStorage.getItem('vaccines')) || [];
+        let selectedChild = 'all';
+        let prescriptionPhoto = null;
 
-        // Конфигурация подставляется автоматически в среде или вводится вручную для GitHub
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "" };
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'github-health-app';
+        // Инициализация
+        function init() {
+            loadChildren();
+            setTodayDate();
+            setDefaultPeriod();
+            updateAll();
+            
+            // Регистрируем Service Worker для PWA
+            registerServiceWorker();
+        }
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
+        // Регистрация Service Worker для офлайн-работы
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('service-worker.js').catch(err => {
+                    console.log('Service Worker registration failed, but PWA will still work');
+                });
+            }
+        }
 
-        // Делаем Firebase доступным для React через глобальный объект
-        window.fb = { 
-            db, auth, appId, collection, doc, addDoc, updateDoc, deleteDoc, 
-            onSnapshot, query, where, getDocs, writeBatch,
-            signInAnonymously, onAuthStateChanged, signInWithCustomToken 
-        };
-    </script>
+        function setTodayDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('illnessDate').value = today;
+            document.getElementById('vaccineDate').value = today;
+        }
 
-    <script type="text/babel">
-        const { useState, useEffect, useMemo, useRef } = React;
+        function setDefaultPeriod() {
+            const today = new Date();
+            const sixMonthsAgo = new Date();
+            sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+            
+            document.getElementById('periodEnd').value = today.toISOString().split('T')[0];
+            document.getElementById('periodStart').value = sixMonthsAgo.toISOString().split('T')[0];
+        }
 
-        // Помощник для длинных названий в графиках
-        const wrapLabel = (str) => {
-            if (str.length <= 16) return str;
-            const words = str.split(' ');
-            let lines = []; let line = "";
-            words.forEach(w => {
-                if ((line + w).length > 16) { lines.push(line.trim()); line = w + " "; }
-                else { line += w + " "; }
+        function setLastMonth() {
+            const today = new Date();
+            const monthAgo = new Date();
+            monthAgo.setMonth(monthAgo.getMonth() - 1);
+            
+            document.getElementById('periodEnd').value = today.toISOString().split('T')[0];
+            document.getElementById('periodStart').value = monthAgo.toISOString().split('T')[0];
+            updateStats();
+        }
+
+        // Дети
+        function loadChildren() {
+            const container = document.getElementById('childrenSelector');
+            let html = '';
+            
+            // Кнопка "Все"
+            html += `
+                <div class="child-item">
+                    <button class="child-btn all-btn ${selectedChild === 'all' ? 'active' : ''}" onclick="selectChild('all')">👥 Все</button>
+                </div>
+            `;
+            
+            children.forEach((child, i) => {
+                const age = child.birthDate ? calculateAge(child.birthDate) : '?';
+                
+                html += `
+                    <div class="child-item">
+                        <button class="child-btn ${selectedChild === i ? 'active' : ''}" onclick="selectChild(${i})">${child.name} (${age} лет, ${child.weight || '?'} кг)</button>
+                        <button class="edit-child-btn" onclick="editChild(${i})">✏️</button>
+                        <button class="delete-child-btn" onclick="deleteChild(${i})">🗑️</button>
+                    </div>
+                `;
             });
-            lines.push(line.trim());
-            return lines;
-        };
+            
+            html += `<button class="add-child-btn" onclick="showChildModal()">➕ Добавить</button>`;
+            container.innerHTML = html;
+            
+            const selects = ['illnessChild', 'vaccineChild', 'medChild', 'editMedChild'];
+            selects.forEach(id => {
+                const select = document.getElementById(id);
+                if (select) {
+                    select.innerHTML = '<option value="">👶 Выберите ребенка</option>' + 
+                        children.map((c, i) => `<option value="${i}">${c.name}</option>`).join('');
+                }
+            });
+        }
 
-        const CATEGORIES = {
-            illness: { label: 'Болезнь', color: 'bg-emerald-500', text: 'text-emerald-600', bg: 'bg-emerald-50', icon: '🌡️' },
-            vaccine: { label: 'Вакцинация', color: 'bg-amber-500', text: 'text-amber-600', bg: 'bg-amber-50', icon: '💉' }
-        };
+        function calculateAge(birthDate) {
+            const today = new Date();
+            const birth = new Date(birthDate);
+            let age = today.getFullYear() - birth.getFullYear();
+            const m = today.getMonth() - birth.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+                age--;
+            }
+            return age;
+        }
 
-        const App = () => {
-            const [user, setUser] = useState(null);
-            const [familyId, setFamilyId] = useState(null);
-            const [view, setView] = useState('dashboard'); // 'dashboard', 'analytics', 'settings'
-            const [children, setChildren] = useState([]);
-            const [entries, setEntries] = useState([]);
-            const [pharmacy, setPharmacy] = useState([]);
-            const [loading, setLoading] = useState(true);
-            const [isModalOpen, setIsModalOpen] = useState(false);
+        function selectChild(index) {
+            selectedChild = index;
+            loadChildren();
+            updateAll();
+        }
 
-            // Инициализация (Rule 3)
-            useEffect(() => {
-                const init = async () => {
-                    const { auth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } = window.fb;
-                    try {
-                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                            await signInWithCustomToken(auth, __initial_auth_token);
-                        } else {
-                            await signInAnonymously(auth);
-                        }
-                    } catch (e) { console.error(e); }
+        function showChildModal() {
+            document.getElementById('childModalTitle').innerHTML = '👶 Добавить ребенка';
+            document.getElementById('editingChildId').value = '';
+            document.getElementById('childName').value = '';
+            document.getElementById('childBirthDate').value = '';
+            document.getElementById('childWeight').value = '';
+            document.getElementById('childModal').style.display = 'flex';
+        }
 
-                    onAuthStateChanged(auth, (u) => {
-                        if (u) {
-                            setUser(u);
-                            setFamilyId(u.uid);
-                        }
-                    });
+        function editChild(index) {
+            const child = children[index];
+            document.getElementById('childModalTitle').innerHTML = '✏️ Редактировать ребенка';
+            document.getElementById('editingChildId').value = index;
+            document.getElementById('childName').value = child.name;
+            document.getElementById('childBirthDate').value = child.birthDate || '';
+            document.getElementById('childWeight').value = child.weight || '';
+            document.getElementById('childModal').style.display = 'flex';
+        }
+
+        function deleteChild(index) {
+            if (confirm(`Удалить ребенка ${children[index].name}?`)) {
+                children.splice(index, 1);
+                entries = entries.filter(e => e.childIndex !== index);
+                pharmacy = pharmacy.filter(p => p.childIndex !== index);
+                vaccines = vaccines.filter(v => v.childIndex !== index);
+                
+                entries = entries.map(e => {
+                    if (e.childIndex > index) e.childIndex--;
+                    return e;
+                });
+                
+                pharmacy = pharmacy.map(p => {
+                    if (p.childIndex > index) p.childIndex--;
+                    return p;
+                });
+                
+                vaccines = vaccines.map(v => {
+                    if (v.childIndex > index) v.childIndex--;
+                    return v;
+                });
+                
+                if (selectedChild === index) {
+                    selectedChild = children.length > 0 ? 0 : 'all';
+                } else if (typeof selectedChild === 'number' && selectedChild > index) {
+                    selectedChild--;
+                }
+                
+                saveData();
+                localStorage.setItem('vaccines', JSON.stringify(vaccines));
+                loadChildren();
+                updateAll();
+                showMessage('🗑️ Ребенок удален');
+            }
+        }
+
+        function closeChildModal() {
+            document.getElementById('childModal').style.display = 'none';
+        }
+
+        function saveChild() {
+            const name = document.getElementById('childName').value.trim();
+            const birthDate = document.getElementById('childBirthDate').value;
+            const weight = document.getElementById('childWeight').value;
+            const editId = document.getElementById('editingChildId').value;
+            
+            if (!name || !birthDate) { alert('Заполните имя и дату рождения!'); return; }
+            
+            const childData = {
+                name: name,
+                birthDate: birthDate,
+                weight: weight || null
+            };
+            
+            if (editId) {
+                children[editId] = childData;
+                showMessage('✏️ Ребенок обновлен');
+            } else {
+                children.push(childData);
+                if (selectedChild === 'all') selectedChild = children.length - 1;
+                showMessage('👶 Ребенок добавлен');
+            }
+            
+            saveData();
+            closeChildModal();
+            loadChildren();
+            updateAll();
+        }
+
+        // Лекарства
+        function addMedicineRow() {
+            const container = document.getElementById('medicinesContainer');
+            const template = document.getElementById('medicineTemplate').cloneNode(true);
+            template.id = 'medicine_' + Date.now();
+            
+            const input = template.querySelector('.medicine-name-input');
+            input.value = '';
+            
+            const checkbox = template.querySelector('.antibiotic-checkbox');
+            checkbox.checked = false;
+            
+            container.appendChild(template);
+        }
+
+        function previewPrescriptionPhoto(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    prescriptionPhoto = e.target.result;
+                    document.getElementById('prescriptionPhotoPreview').innerHTML = 
+                        `<img src="${e.target.result}" class="photo-preview">`;
                 };
-                init();
-            }, []);
+                reader.readAsDataURL(file);
+            }
+        }
 
-            // Загрузка данных (Rule 1 & 2)
-            useEffect(() => {
-                if (!user || !familyId) return;
-                const { db, appId, collection, onSnapshot } = window.fb;
-                const path = collection(db, 'artifacts', appId, 'public', 'data', 'familyStore');
-
-                const unsub = onSnapshot(path, (snap) => {
-                    const allDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                    const familyDocs = allDocs.filter(d => d.familyId === familyId);
-
-                    setChildren(familyDocs.filter(d => d.docType === 'child'));
-                    setEntries(familyDocs.filter(d => d.docType === 'entry'));
-                    setPharmacy(familyDocs.filter(d => d.docType === 'pharmacy'));
-                    setLoading(false);
-                }, (err) => console.error(err));
-
-                return () => unsub();
-            }, [user, familyId]);
-
-            // Виджет Аналитики
-            const AnalyticsView = () => {
-                const chartRef = useRef(null);
-                useEffect(() => {
-                    const ctx = document.getElementById('tempChart');
-                    if (ctx) {
-                        if (chartRef.current) chartRef.current.destroy();
-                        chartRef.current = new Chart(ctx, {
-                            type: 'line',
-                            data: {
-                                labels: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(wrapLabel),
-                                datasets: [{
-                                    label: 'Температура (°C)',
-                                    data: [36.6, 36.8, 38.2, 37.5, 36.9, 36.6, 36.6],
-                                    borderColor: '#10B981',
-                                    tension: 0.4,
-                                    fill: true,
-                                    backgroundColor: 'rgba(16, 185, 129, 0.1)'
-                                }]
-                            },
-                            options: { 
-                                responsive: true, 
-                                maintainAspectRatio: false,
-                                plugins: {
-                                    tooltip: {
-                                        callbacks: {
-                                            title: (items) => {
-                                                const label = items[0].chart.data.labels[items[0].dataIndex];
-                                                return Array.isArray(label) ? label.join(' ') : label;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+        // Сохранение записи
+        function saveIllness() {
+            const childIndex = document.getElementById('illnessChild').value;
+            const title = document.getElementById('illnessTitle').value.trim();
+            const weight = document.getElementById('illnessWeight').value;
+            const isHealthy = document.getElementById('illnessHealthy').checked;
+            const editId = document.getElementById('editingEntryId').value;
+            
+            if (!childIndex) { alert('Выберите ребенка!'); return; }
+            
+            const temps = {
+                day1: { from: document.getElementById('temp1From').value, to: document.getElementById('temp1To').value },
+                day2: { from: document.getElementById('temp2From').value, to: document.getElementById('temp2To').value },
+                day3: { from: document.getElementById('temp3From').value, to: document.getElementById('temp3To').value }
+            };
+            
+            const tempMoreThan3 = document.getElementById('tempMoreThan3').checked;
+            const tempDaysCount = document.getElementById('tempDaysCount').value;
+            const prescription = document.getElementById('prescriptionText').value.trim();
+            
+            const medicines = [];
+            document.querySelectorAll('.medicine-item').forEach(item => {
+                const name = item.querySelector('.medicine-name-input')?.value.trim();
+                const isAntibiotic = item.querySelector('.antibiotic-checkbox')?.checked;
+                if (name) {
+                    medicines.push({ name, isAntibiotic });
+                    
+                    const exists = pharmacy.some(p => 
+                        p.name.toLowerCase() === name.toLowerCase() && 
+                        p.childIndex === parseInt(childIndex)
+                    );
+                    
+                    if (!exists) {
+                        pharmacy.push({
+                            id: Date.now() + Math.random(),
+                            name: name,
+                            childIndex: parseInt(childIndex),
+                            childName: children[parseInt(childIndex)].name,
+                            isAntibiotic: isAntibiotic,
+                            bought: false
                         });
                     }
-                }, []);
-
-                return (
-                    <div className="space-y-8 animate-page">
-                        <div className="m-card p-8 border-t-8 border-emerald-500">
-                            <h3 className="text-xl font-black text-slate-800 uppercase mb-4">График температуры</h3>
-                            <div className="chart-container">
-                                <canvas id="tempChart"></canvas>
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="m-card p-6 bg-indigo-600 text-white text-center">
-                                <p className="text-3xl font-black">100%</p>
-                                <p className="text-[10px] font-black uppercase opacity-70">Защита данных</p>
-                            </div>
-                            <div className="m-card p-6 bg-amber-500 text-white text-center">
-                                <p className="text-3xl font-black">6 мес</p>
-                                <p className="text-[10px] font-black uppercase opacity-70">История лекарств</p>
-                            </div>
-                        </div>
-                    </div>
-                );
+                }
+            });
+            
+            const entry = {
+                id: editId ? parseInt(editId) : Date.now(),
+                childIndex: parseInt(childIndex),
+                title: title || 'Осмотр',
+                weight: weight,
+                isHealthy: isHealthy,
+                temps: temps,
+                tempMoreThan3: tempMoreThan3,
+                tempDaysCount: tempDaysCount,
+                prescription: prescription,
+                prescriptionPhoto: prescriptionPhoto,
+                medicines: medicines,
+                date: document.getElementById('illnessDate').value + 'T12:00:00'
             };
+            
+            if (editId) {
+                const index = entries.findIndex(e => e.id === parseInt(editId));
+                if (index !== -1) entries[index] = entry;
+                showMessage('✏️ Запись обновлена');
+            } else {
+                entries.push(entry);
+                showMessage('✅ Запись сохранена');
+            }
+            
+            localStorage.setItem('pharmacy', JSON.stringify(pharmacy));
+            saveData();
+            clearIllnessForm();
+            updateAll();
+        }
 
-            // Главный дашборд
-            const DashboardView = () => (
-                <div className="space-y-6 animate-page">
-                    <div className="flex items-center justify-between py-4">
-                        <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 bg-emerald-500 rounded-3xl flex items-center justify-center text-3xl shadow-lg">👶</div>
-                            <div>
-                                <h1 className="text-2xl font-black text-slate-800 uppercase tracking-tighter leading-none">Детское здоровье</h1>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">ID: {familyId?.slice(0, 8)}</p>
+        function clearIllnessForm() {
+            document.getElementById('editingEntryId').value = '';
+            document.getElementById('illnessChild').value = '';
+            document.getElementById('illnessWeight').value = '';
+            document.getElementById('illnessHealthy').checked = false;
+            document.getElementById('temp1From').value = '36.6';
+            document.getElementById('temp1To').value = '36.6';
+            document.getElementById('temp2From').value = '36.6';
+            document.getElementById('temp2To').value = '36.6';
+            document.getElementById('temp3From').value = '36.6';
+            document.getElementById('temp3To').value = '36.6';
+            document.getElementById('tempMoreThan3').checked = false;
+            document.getElementById('tempDaysCount').value = '4';
+            document.getElementById('illnessTitle').value = '';
+            document.getElementById('prescriptionText').value = '';
+            document.getElementById('prescriptionPhotoPreview').innerHTML = '';
+            document.getElementById('medicinesContainer').innerHTML = `
+                <div class="medicine-item" id="medicineTemplate">
+                    <input type="text" class="medicine-name-input" placeholder="Название лекарства">
+                    <label class="antibiotic-check">
+                        <input type="checkbox" class="antibiotic-checkbox"> Антибиотик
+                    </label>
+                </div>
+            `;
+            prescriptionPhoto = null;
+            setTodayDate();
+        }
+
+        function editEntry(id) {
+            const entry = entries.find(e => e.id === id);
+            if (!entry) return;
+            
+            document.getElementById('editingEntryId').value = entry.id;
+            document.getElementById('illnessChild').value = entry.childIndex;
+            document.getElementById('illnessWeight').value = entry.weight || '';
+            document.getElementById('illnessHealthy').checked = entry.isHealthy || false;
+            
+            if (entry.temps) {
+                document.getElementById('temp1From').value = entry.temps.day1?.from || '36.6';
+                document.getElementById('temp1To').value = entry.temps.day1?.to || '36.6';
+                document.getElementById('temp2From').value = entry.temps.day2?.from || '36.6';
+                document.getElementById('temp2To').value = entry.temps.day2?.to || '36.6';
+                document.getElementById('temp3From').value = entry.temps.day3?.from || '36.6';
+                document.getElementById('temp3To').value = entry.temps.day3?.to || '36.6';
+            }
+            
+            document.getElementById('tempMoreThan3').checked = entry.tempMoreThan3 || false;
+            document.getElementById('tempDaysCount').value = entry.tempDaysCount || '4';
+            document.getElementById('illnessTitle').value = entry.title || '';
+            document.getElementById('prescriptionText').value = entry.prescription || '';
+            
+            const date = new Date(entry.date);
+            document.getElementById('illnessDate').value = date.toISOString().split('T')[0];
+            
+            if (entry.prescriptionPhoto) {
+                prescriptionPhoto = entry.prescriptionPhoto;
+                document.getElementById('prescriptionPhotoPreview').innerHTML = 
+                    `<img src="${entry.prescriptionPhoto}" class="photo-preview">`;
+            }
+            
+            if (entry.medicines && entry.medicines.length) {
+                document.getElementById('medicinesContainer').innerHTML = '';
+                entry.medicines.forEach(med => {
+                    addMedicineRow();
+                    const lastRow = document.querySelector('#medicinesContainer .medicine-item:last-child');
+                    if (lastRow) {
+                        lastRow.querySelector('.medicine-name-input').value = med.name;
+                        lastRow.querySelector('.antibiotic-checkbox').checked = med.isAntibiotic;
+                    }
+                });
+            }
+        }
+
+        // Прививки
+        function saveVaccine() {
+            const childIndex = document.getElementById('vaccineChild').value;
+            const name = document.getElementById('vaccineName').value.trim();
+            const date = document.getElementById('vaccineDate').value;
+            const status = document.getElementById('vaccineStatus').value;
+            const revaccination = document.getElementById('revaccinationDate').value;
+            const temp = document.getElementById('vaccineTemp').value;
+            const editId = document.getElementById('editingVaccineId').value;
+            
+            if (!childIndex) { alert('Выберите ребенка!'); return; }
+            if (!name) { alert('Введите название прививки!'); return; }
+            if (!date) { alert('Выберите дату!'); return; }
+            
+            const vaccine = {
+                id: editId ? parseInt(editId) : Date.now(),
+                childIndex: parseInt(childIndex),
+                name: name,
+                date: date,
+                status: status,
+                revaccination: revaccination,
+                temperature: temp
+            };
+            
+            if (editId) {
+                const index = vaccines.findIndex(v => v.id === parseInt(editId));
+                if (index !== -1) vaccines[index] = vaccine;
+                showMessage('✏️ Прививка обновлена');
+            } else {
+                vaccines.push(vaccine);
+                showMessage('💉 Прививка добавлена');
+            }
+            
+            localStorage.setItem('vaccines', JSON.stringify(vaccines));
+            
+            document.getElementById('editingVaccineId').value = '';
+            document.getElementById('vaccineName').value = '';
+            document.getElementById('revaccinationDate').value = '';
+            updateVaccineHistory();
+            updateCurrentStats();
+            updateStats();
+        }
+
+        function editVaccine(id) {
+            const vaccine = vaccines.find(v => v.id === id);
+            if (!vaccine) return;
+            
+            document.getElementById('editingVaccineId').value = vaccine.id;
+            document.getElementById('vaccineChild').value = vaccine.childIndex;
+            document.getElementById('vaccineName').value = vaccine.name;
+            document.getElementById('vaccineDate').value = vaccine.date;
+            document.getElementById('vaccineStatus').value = vaccine.status;
+            document.getElementById('revaccinationDate').value = vaccine.revaccination || '';
+            document.getElementById('vaccineTemp').value = vaccine.temperature || '36.6';
+        }
+
+        function deleteVaccine(id) {
+            if (confirm('Удалить прививку?')) {
+                vaccines = vaccines.filter(v => v.id !== id);
+                localStorage.setItem('vaccines', JSON.stringify(vaccines));
+                updateVaccineHistory();
+                updateCurrentStats();
+                updateStats();
+                showMessage('🗑️ Прививка удалена');
+            }
+        }
+
+        function updateVaccineHistory() {
+            const container = document.getElementById('vaccineHistory');
+            
+            let filteredVaccines = vaccines;
+            if (selectedChild !== 'all') {
+                filteredVaccines = vaccines.filter(v => v.childIndex === selectedChild);
+            }
+            
+            const doneVaccines = filteredVaccines.filter(v => v.status === 'done')
+                .sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            if (doneVaccines.length === 0) {
+                container.innerHTML = '<div style="color:#8E8E93; text-align:center; padding:20px;">Нет сделанных прививок</div>';
+                return;
+            }
+            
+            container.innerHTML = doneVaccines.map(v => {
+                const child = children[v.childIndex]?.name || 'Неизвестно';
+                const date = new Date(v.date).toLocaleDateString();
+                
+                return `
+                    <div class="vaccine-item">
+                        <button class="edit-vaccine-btn" onclick="editVaccine(${v.id})">✏️</button>
+                        <button class="delete-vaccine-btn" onclick="deleteVaccine(${v.id})">🗑️</button>
+                        <div style="font-weight:600;">${child} - ${v.name}</div>
+                        <div style="font-size:13px; color:#8E8E93;">${date}</div>
+                        ${v.revaccination ? `<div style="font-size:12px; margin-top:4px;">📅 Ревакцинация: ${new Date(v.revaccination).toLocaleDateString()}</div>` : ''}
+                        ${v.temperature && v.temperature != 36.6 ? `<div style="font-size:12px; color:#FF3B30;">🌡️ Реакция: ${v.temperature}°C</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Аптечка
+        function showMedicineModal() {
+            document.getElementById('medicineModal').style.display = 'flex';
+        }
+
+        function closeMedicineModal() {
+            document.getElementById('medicineModal').style.display = 'none';
+            document.getElementById('medName').value = '';
+            document.getElementById('medExpiry').value = '';
+        }
+
+        function saveMedicine() {
+            const child = document.getElementById('medChild').value;
+            const name = document.getElementById('medName').value.trim();
+            
+            if (!child) { alert('Выберите ребенка!'); return; }
+            if (!name) { alert('Введите название!'); return; }
+            
+            pharmacy.push({
+                id: Date.now(),
+                name: name,
+                childIndex: parseInt(child),
+                childName: children[parseInt(child)].name,
+                expiry: document.getElementById('medExpiry').value,
+                bought: false
+            });
+            
+            localStorage.setItem('pharmacy', JSON.stringify(pharmacy));
+            closeMedicineModal();
+            updatePharmacy();
+            showMessage('💊 Лекарство добавлено');
+        }
+
+        function editMedicine(id) {
+            const medicine = pharmacy.find(m => m.id === id);
+            if (!medicine) return;
+            
+            document.getElementById('editMedId').value = medicine.id;
+            document.getElementById('editMedChild').value = medicine.childIndex;
+            document.getElementById('editMedName').value = medicine.name;
+            document.getElementById('editMedExpiry').value = medicine.expiry || '';
+            
+            document.getElementById('editMedicineModal').style.display = 'flex';
+        }
+
+        function closeEditMedicineModal() {
+            document.getElementById('editMedicineModal').style.display = 'none';
+        }
+
+        function updateMedicine() {
+            const id = parseFloat(document.getElementById('editMedId').value);
+            const medicine = pharmacy.find(m => m.id === id);
+            
+            if (medicine) {
+                medicine.childIndex = parseInt(document.getElementById('editMedChild').value);
+                medicine.childName = children[medicine.childIndex].name;
+                medicine.name = document.getElementById('editMedName').value.trim();
+                medicine.expiry = document.getElementById('editMedExpiry').value;
+                
+                localStorage.setItem('pharmacy', JSON.stringify(pharmacy));
+                closeEditMedicineModal();
+                updatePharmacy();
+                showMessage('✏️ Лекарство обновлено');
+            }
+        }
+
+        function deleteMedicine(id) {
+            if (confirm('Удалить лекарство из аптечки?')) {
+                pharmacy = pharmacy.filter(m => m.id !== id);
+                localStorage.setItem('pharmacy', JSON.stringify(pharmacy));
+                updatePharmacy();
+                showMessage('🗑️ Удалено');
+            }
+        }
+
+        function toggleBought(id) {
+            const item = pharmacy.find(p => p.id === id);
+            if (item) {
+                item.bought = !item.bought;
+                localStorage.setItem('pharmacy', JSON.stringify(pharmacy));
+                updatePharmacy();
+            }
+        }
+
+        function updatePharmacy() {
+            const container = document.getElementById('pharmacyList');
+            const shoppingContainer = document.getElementById('shoppingList');
+            
+            let filteredPharmacy = pharmacy;
+            if (selectedChild !== 'all') {
+                filteredPharmacy = pharmacy.filter(p => p.childIndex === selectedChild);
+            }
+            
+            if (filteredPharmacy.length === 0) {
+                container.innerHTML = '<div style="color:#8E8E93; text-align:center; padding:20px;">Аптечка пуста</div>';
+                shoppingContainer.innerHTML = '<div style="color:#8E8E93;">Нет лекарств</div>';
+                return;
+            }
+            
+            const byChild = {};
+            filteredPharmacy.forEach(p => {
+                if (!byChild[p.childIndex]) byChild[p.childIndex] = [];
+                byChild[p.childIndex].push(p);
+            });
+            
+            let html = '';
+            Object.keys(byChild).forEach(childIndex => {
+                const child = children[childIndex];
+                if (!child) return;
+                
+                html += `<div class="medicine-group">`;
+                html += `<div class="medicine-group-title">
+                    👶 ${child.name}
+                    <span>${byChild[childIndex].filter(m => !m.bought).length} нужно</span>
+                </div>`;
+                
+                byChild[childIndex].forEach(m => {
+                    const isExpired = m.expiry && new Date(m.expiry) < new Date();
+                    html += `
+                        <div class="medicine-row">
+                            <input type="checkbox" class="medicine-check" ${m.bought ? 'checked' : ''} onchange="toggleBought(${m.id})">
+                            <span class="medicine-name ${m.bought ? 'bought' : ''}">${m.name} ${m.isAntibiotic ? '💊' : ''}</span>
+                            ${m.expiry ? `<span class="medicine-expiry">${isExpired ? '❗' : ''} ${new Date(m.expiry).toLocaleDateString()}</span>` : ''}
+                            <div class="medicine-actions">
+                                <button class="edit-medicine-btn" onclick="editMedicine(${m.id})">✏️</button>
+                                <button class="delete-medicine-btn" onclick="deleteMedicine(${m.id})">🗑️</button>
                             </div>
                         </div>
-                        <button onClick={() => setView('settings')} className="text-2xl">⚙️</button>
-                    </div>
+                    `;
+                });
+                
+                html += `</div>`;
+            });
+            container.innerHTML = html;
+            
+            const toBuy = filteredPharmacy.filter(p => !p.bought);
+            if (toBuy.length === 0) {
+                shoppingContainer.innerHTML = '<div style="color:#8E8E93;">✅ Всё куплено</div>';
+            } else {
+                const toBuyByChild = {};
+                toBuy.forEach(p => {
+                    if (!toBuyByChild[p.childIndex]) toBuyByChild[p.childIndex] = [];
+                    toBuyByChild[p.childIndex].push(p);
+                });
+                
+                let shoppingHtml = '';
+                Object.keys(toBuyByChild).forEach(childIndex => {
+                    const child = children[childIndex];
+                    toBuyByChild[childIndex].forEach(p => {
+                        shoppingHtml += `
+                            <div class="to-buy-item">
+                                <input type="checkbox" onchange="toggleBought(${p.id})">
+                                <span>${child.name}: ${p.name} ${p.isAntibiotic ? '💊' : ''}</span>
+                            </div>
+                        `;
+                    });
+                });
+                shoppingContainer.innerHTML = shoppingHtml;
+            }
+        }
 
-                    {/* Дети */}
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="m-card p-5 border-l-8 border-emerald-500">
-                            <p className="text-lg font-black text-slate-700 uppercase">Маша</p>
-                            <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase">3 года 6 мес.</p>
-                            <p className="text-xs font-black text-emerald-500 mt-2 uppercase tracking-tighter">Здорова</p>
-                        </div>
-                        <div className="m-card p-5 border-l-8 border-blue-500">
-                            <p className="text-lg font-black text-slate-700 uppercase">Матвей</p>
-                            <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase">7 лет 11 мес.</p>
-                            <p className="text-xs font-black text-emerald-500 mt-2 uppercase tracking-tighter">Здоров</p>
-                        </div>
-                    </div>
-
-                    {/* Лента */}
-                    <div className="space-y-4">
-                        <div className="flex justify-between items-center px-2">
-                            <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">Последние события</h3>
-                            <button className="text-emerald-500 text-[10px] font-black uppercase">Архив</button>
-                        </div>
+        // Текущая статистика
+        function updateCurrentStats() {
+            const statsHeader = document.getElementById('statsHeader');
+            const allChildrenContainer = document.getElementById('allChildrenStats');
+            
+            if (selectedChild !== 'all' && children[selectedChild]) {
+                // Режим одного ребенка - показываем обычный заголовок
+                statsHeader.style.display = 'grid';
+                allChildrenContainer.style.display = 'none';
+                
+                const childEntries = entries.filter(e => e.childIndex === selectedChild);
+                const lastEntry = childEntries.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+                
+                if (lastEntry) {
+                    const lastTemp = lastEntry.temps?.day3?.to || lastEntry.temps?.day2?.to || lastEntry.temps?.day1?.to || '36.6';
+                    document.getElementById('currentTemp').innerHTML = lastTemp + '°C';
+                    document.getElementById('currentWeight').innerHTML = lastEntry.weight ? lastEntry.weight + ' кг' : (children[selectedChild].weight || '--') + ' кг';
+                    document.getElementById('currentState').innerHTML = lastEntry.isHealthy ? '✅ Здоров' : (lastEntry.title || 'Болеет');
+                } else {
+                    document.getElementById('currentTemp').innerHTML = '36.6°C';
+                    document.getElementById('currentWeight').innerHTML = (children[selectedChild].weight || '--') + ' кг';
+                    document.getElementById('currentState').innerHTML = 'Здоров';
+                }
+                
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                
+                const recentEntries = childEntries.filter(e => new Date(e.date) > thirtyDaysAgo);
+                const symptomDays = new Set();
+                recentEntries.forEach(e => {
+                    if (e.temps) {
+                        const hasFever = 
+                            (e.temps.day1?.to && parseFloat(e.temps.day1.to) > 37) ||
+                            (e.temps.day2?.to && parseFloat(e.temps.day2.to) > 37) ||
+                            (e.temps.day3?.to && parseFloat(e.temps.day3.to) > 37) ||
+                            e.tempMoreThan3;
                         
-                        {entries.length > 0 ? entries.map(e => (
-                            <div key={e.id} className="m-card p-5 flex items-center gap-4">
-                                <div className="text-3xl">{CATEGORIES[e.type]?.icon || '📝'}</div>
-                                <div className="flex-1">
-                                    <p className="text-[9px] font-black text-slate-300 uppercase leading-none mb-1">
-                                        {new Date(e.date).toLocaleDateString()}
-                                    </p>
-                                    <p className="font-black text-slate-700 uppercase tracking-tight leading-tight">{e.title}</p>
+                        if (hasFever) {
+                            symptomDays.add(new Date(e.date).toDateString());
+                        }
+                    }
+                });
+                document.getElementById('illnessDays').innerHTML = symptomDays.size + ' дн.';
+                
+                // Плановые прививки для одного ребенка
+                const plannedVaccines = vaccines.filter(v => v.childIndex === selectedChild && v.status === 'planned')
+                    .sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                const plannedContainer = document.getElementById('plannedVaccines');
+                if (plannedVaccines.length > 0) {
+                    let plannedHtml = '<div style="font-size:13px; margin-bottom:8px; opacity:0.9;">📅 Плановые прививки:</div>';
+                    plannedVaccines.forEach(v => {
+                        plannedHtml += `
+                            <div class="planned-vaccine-item">
+                                <span>${v.name}</span>
+                                <span>${new Date(v.date).toLocaleDateString()}</span>
+                            </div>
+                        `;
+                    });
+                    plannedContainer.innerHTML = plannedHtml;
+                } else {
+                    plannedContainer.innerHTML = '<div style="font-size:13px;">📅 Нет плановых прививок</div>';
+                }
+            } else {
+                // Режим "Все" - показываем строки для каждого ребенка
+                statsHeader.style.display = 'none';
+                allChildrenContainer.style.display = 'block';
+                
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                
+                let allChildrenHtml = '';
+                
+                children.forEach((child, childIndex) => {
+                    const childEntries = entries.filter(e => e.childIndex === childIndex);
+                    const lastEntry = childEntries.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+                    
+                    // Температура
+                    let temp = '36.6°C';
+                    let state = 'Здоров';
+                    let weight = child.weight ? child.weight + ' кг' : '--';
+                    
+                    if (lastEntry) {
+                        temp = (lastEntry.temps?.day3?.to || lastEntry.temps?.day2?.to || lastEntry.temps?.day1?.to || '36.6') + '°C';
+                        state = lastEntry.isHealthy ? '✅ Здоров' : (lastEntry.title || 'Болеет');
+                        weight = lastEntry.weight ? lastEntry.weight + ' кг' : (child.weight || '--') + ' кг';
+                    }
+                    
+                    // Дни болезни за 30 дней
+                    const recentEntries = childEntries.filter(e => new Date(e.date) > thirtyDaysAgo);
+                    const symptomDays = new Set();
+                    recentEntries.forEach(e => {
+                        if (e.temps) {
+                            const hasFever = 
+                                (e.temps.day1?.to && parseFloat(e.temps.day1.to) > 37) ||
+                                (e.temps.day2?.to && parseFloat(e.temps.day2.to) > 37) ||
+                                (e.temps.day3?.to && parseFloat(e.temps.day3.to) > 37) ||
+                                e.tempMoreThan3;
+                            
+                            if (hasFever) {
+                                symptomDays.add(new Date(e.date).toDateString());
+                            }
+                        }
+                    });
+                    
+                    allChildrenHtml += `
+                        <div class="child-stats-row">
+                            <span class="child-name">${child.name}</span>
+                            <div class="child-stat-items">
+                                <div class="child-stat">
+                                    <div class="child-stat-label">Темп.</div>
+                                    <div>${temp}</div>
                                 </div>
-                                <div className="text-right">
-                                    <p className="text-lg font-black text-emerald-500">36.6°</p>
+                                <div class="child-stat">
+                                    <div class="child-stat-label">Состояние</div>
+                                    <div>${state}</div>
+                                </div>
+                                <div class="child-stat">
+                                    <div class="child-stat-label">Вес</div>
+                                    <div>${weight}</div>
+                                </div>
+                                <div class="child-stat">
+                                    <div class="child-stat-label">Болеет</div>
+                                    <div>${symptomDays.size} дн.</div>
                                 </div>
                             </div>
-                        )) : (
-                            <div className="text-center p-12 bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-200">
-                                <p className="text-slate-400 font-bold uppercase text-xs">Дневник пуст</p>
+                        </div>
+                    `;
+                });
+                
+                allChildrenContainer.innerHTML = allChildrenHtml;
+                
+                // Плановые прививки для всех детей - каждая прививка в отдельной строке
+                const plannedVaccines = vaccines.filter(v => v.status === 'planned')
+                    .sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                const plannedContainer = document.getElementById('plannedVaccines');
+                if (plannedVaccines.length > 0) {
+                    let plannedHtml = '<div style="font-size:13px; margin-bottom:8px; opacity:0.9;">📅 Плановые прививки:</div>';
+                    plannedVaccines.forEach(v => {
+                        const child = children[v.childIndex]?.name || 'Неизвестно';
+                        plannedHtml += `
+                            <div class="planned-vaccine-item">
+                                <span>${child}: ${v.name}</span>
+                                <span>${new Date(v.date).toLocaleDateString()}</span>
                             </div>
-                        )}
+                        `;
+                    });
+                    plannedContainer.innerHTML = plannedHtml;
+                } else {
+                    plannedContainer.innerHTML = '<div style="font-size:13px;">📅 Нет плановых прививок</div>';
+                }
+            }
+        }
+
+        // Статистика за период
+        function updateStats() {
+            const startDate = new Date(document.getElementById('periodStart').value);
+            const endDate = new Date(document.getElementById('periodEnd').value);
+            endDate.setHours(23, 59, 59);
+            
+            let filteredEntries = entries.filter(e => {
+                const entryDate = new Date(e.date);
+                return entryDate >= startDate && entryDate <= endDate;
+            });
+            
+            if (selectedChild !== 'all') {
+                filteredEntries = filteredEntries.filter(e => e.childIndex === selectedChild);
+            }
+            
+            const diagnosisCount = {};
+            const antibioticsList = [];
+            const daysWithTemp = new Set();
+            
+            filteredEntries.forEach(e => {
+                // Диагнозы
+                if (e.title && e.title !== 'Осмотр') {
+                    const key = e.title + (selectedChild === 'all' ? '_' + e.childIndex : '');
+                    diagnosisCount[key] = {
+                        name: e.title,
+                        child: children[e.childIndex]?.name,
+                        count: (diagnosisCount[key]?.count || 0) + 1
+                    };
+                }
+                
+                // Антибиотики
+                if (e.medicines) {
+                    e.medicines.forEach(m => {
+                        if (m.isAntibiotic) {
+                            antibioticsList.push({
+                                name: m.name,
+                                child: children[e.childIndex]?.name,
+                                date: e.date
+                            });
+                        }
+                    });
+                }
+                
+                // Дни с температурой
+                if (e.temps) {
+                    const hasFever = 
+                        (e.temps.day1?.to && parseFloat(e.temps.day1.to) > 37) ||
+                        (e.temps.day2?.to && parseFloat(e.temps.day2.to) > 37) ||
+                        (e.temps.day3?.to && parseFloat(e.temps.day3.to) > 37) ||
+                        e.tempMoreThan3;
+                    
+                    if (hasFever) {
+                        const key = new Date(e.date).toDateString() + (selectedChild === 'all' ? '_' + e.childIndex : '');
+                        daysWithTemp.add(key);
+                    }
+                }
+            });
+            
+            document.getElementById('totalIllnesses').innerHTML = daysWithTemp.size;
+            document.getElementById('totalAntibiotics').innerHTML = antibioticsList.length;
+            
+            // Диагнозы - каждый в отдельной строке
+            let diagnosisHtml = '';
+            Object.values(diagnosisCount).forEach(d => {
+                diagnosisHtml += `
+                    <div class="diagnosis-item">
+                        <span class="diagnosis-name">${d.name} ${selectedChild === 'all' ? '· ' + d.child : ''}</span>
+                        <span class="diagnosis-count">${d.count}</span>
                     </div>
-
-                    <button 
-                        onClick={() => setIsModalOpen(true)}
-                        className="w-full bg-emerald-500 text-white py-6 rounded-[2rem] font-black text-lg shadow-xl shadow-emerald-100 flex items-center justify-center gap-3 active:scale-95 transition-all"
-                    >
-                        <span>➕</span> НОВАЯ ЗАПИСЬ
-                    </button>
-                </div>
-            );
-
-            // Настройки (Семья)
-            const SettingsView = () => (
-                <div className="space-y-8 animate-page py-6">
-                    <button onClick={() => setView('dashboard')} className="text-slate-400 font-black text-xs uppercase">⬅ Назад</button>
-                    <div className="m-card p-8 bg-indigo-600 text-white">
-                        <h2 className="text-2xl font-black uppercase mb-4 tracking-tighter leading-none">Семейный доступ</h2>
-                        <p className="text-sm opacity-80 mb-6 font-medium">Ваш код нужен близким, чтобы они видели те же данные, что и вы.</p>
-                        <div className="bg-white/10 p-4 rounded-2xl border border-white/20 flex items-center justify-between">
-                            <code className="text-xl font-black tracking-widest">{familyId}</code>
-                            <button onClick={() => { navigator.clipboard.writeText(familyId); alert('Скопировано!'); }} className="text-xl">📋</button>
-                        </div>
+                `;
+            });
+            document.getElementById('diagnosisList').innerHTML = diagnosisHtml || '<div class="diagnosis-item">Нет диагнозов</div>';
+            
+            // Антибиотики - каждый в отдельной строке
+            antibioticsList.sort((a, b) => new Date(b.date) - new Date(a.date));
+            document.getElementById('antibioticsList').innerHTML = antibioticsList.length ?
+                antibioticsList.map(a => `
+                    <div class="diagnosis-item">
+                        <span class="diagnosis-name">${a.name} ${selectedChild === 'all' ? '· ' + a.child : ''}</span>
+                        <span class="diagnosis-count">${new Date(a.date).toLocaleDateString()}</span>
                     </div>
-                    <div className="m-card p-8">
-                        <h3 className="text-lg font-black text-slate-800 uppercase mb-4">Ввести код близкого</h3>
-                        <div className="flex gap-2">
-                            <input type="text" placeholder="Код..." className="flex-1 bg-slate-100 border-none rounded-xl p-4 font-bold" />
-                            <button className="bg-emerald-500 text-white px-6 rounded-xl font-black">➔</button>
+                `).join('') :
+                '<div class="diagnosis-item">Нет антибиотиков</div>';
+            
+            document.getElementById('statsPeriod').innerHTML = 
+                `📅 ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+            
+            updateIllnessHistory();
+        }
+
+        // Подробная история с поиском
+        function updateIllnessHistory() {
+            const container = document.getElementById('illnessHistory');
+            const search = document.getElementById('searchInput')?.value.toLowerCase() || '';
+            
+            let filteredEntries = entries;
+            if (selectedChild !== 'all') {
+                filteredEntries = entries.filter(e => e.childIndex === selectedChild);
+            }
+            
+            // Поиск только в истории
+            if (search) {
+                filteredEntries = filteredEntries.filter(e => 
+                    (e.title && e.title.toLowerCase().includes(search)) ||
+                    (e.prescription && e.prescription.toLowerCase().includes(search)) ||
+                    (e.medicines && e.medicines.some(m => m.name.toLowerCase().includes(search)))
+                );
+            }
+            
+            if (filteredEntries.length === 0) {
+                container.innerHTML = '<div style="color:#8E8E93; text-align:center; padding:30px;">Нет записей</div>';
+                return;
+            }
+            
+            const sortedEntries = filteredEntries.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            let illnessHtml = '';
+            sortedEntries.forEach(e => {
+                const child = children[e.childIndex]?.name || 'Неизвестно';
+                const date = new Date(e.date).toLocaleDateString();
+                
+                let tempsHtml = '';
+                if (e.temps) {
+                    const temps = [];
+                    if (e.temps.day1?.to && parseFloat(e.temps.day1.to) > 36.6) {
+                        temps.push(`<span class="history-temp-item">1й: ${e.temps.day1.to}°C</span>`);
+                    }
+                    if (e.temps.day2?.to && parseFloat(e.temps.day2.to) > 36.6) {
+                        temps.push(`<span class="history-temp-item">2й: ${e.temps.day2.to}°C</span>`);
+                    }
+                    if (e.temps.day3?.to && parseFloat(e.temps.day3.to) > 36.6) {
+                        temps.push(`<span class="history-temp-item">3й: ${e.temps.day3.to}°C</span>`);
+                    }
+                    if (e.tempMoreThan3) {
+                        temps.push(`<span class="history-temp-item">🔥 еще ${e.tempDaysCount || '?'}</span>`);
+                    }
+                    if (temps.length) {
+                        tempsHtml = `<div class="history-temps">${temps.join('')}</div>`;
+                    }
+                }
+                
+                let medicinesHtml = '';
+                if (e.medicines?.length) {
+                    const meds = e.medicines.map(m => 
+                        `${m.name} ${m.isAntibiotic ? '💊' : ''}`
+                    ).join(', ');
+                    medicinesHtml = `<div class="history-medicines">💊 ${meds}</div>`;
+                }
+                
+                let prescriptionHtml = '';
+                if (e.prescription) {
+                    prescriptionHtml = `<div class="history-prescription">📋 ${e.prescription}</div>`;
+                }
+                
+                illnessHtml += `
+                    <div class="history-item">
+                        <div class="history-actions">
+                            <button class="history-edit-btn" onclick="editEntry(${e.id})">✏️</button>
+                            <button class="history-delete-btn" onclick="deleteEntry(${e.id})">🗑️</button>
                         </div>
+                        <div class="history-header">
+                            <span class="history-name">${e.title || 'Осмотр'}</span>
+                            <span class="history-child">${child}</span>
+                        </div>
+                        <div class="history-date">${date}</div>
+                        ${e.weight ? `<div class="history-date">⚖️ ${e.weight} кг</div>` : ''}
+                        ${tempsHtml}
+                        ${medicinesHtml}
+                        ${prescriptionHtml}
                     </div>
-                </div>
-            );
+                `;
+            });
+            container.innerHTML = illnessHtml;
+        }
 
-            if (loading) return (
-                <div className="h-screen flex flex-col items-center justify-center bg-white">
-                    <div className="text-6xl animate-bounce mb-4">👶</div>
-                    <p className="text-emerald-500 font-black tracking-[0.5em] text-[10px] uppercase">Синхронизация...</p>
-                </div>
-            );
+        // Удаление
+        function deleteEntry(id) {
+            if (confirm('Удалить запись?')) {
+                entries = entries.filter(e => e.id !== id);
+                saveData();
+                updateAll();
+                showMessage('🗑️ Удалено');
+            }
+        }
 
-            return (
-                <div className="max-w-lg mx-auto p-4 min-h-screen">
-                    {view === 'dashboard' && <DashboardView />}
-                    {view === 'analytics' && <AnalyticsView />}
-                    {view === 'settings' && <SettingsView />}
+        // Сохранение
+        function saveData() {
+            localStorage.setItem('children', JSON.stringify(children));
+            localStorage.setItem('entries', JSON.stringify(entries));
+            localStorage.setItem('pharmacy', JSON.stringify(pharmacy));
+        }
 
-                    {/* Нижнее меню */}
-                    <nav className="fixed bottom-6 left-4 right-4 bg-white/80 backdrop-blur-md shadow-2xl rounded-[2rem] p-3 flex justify-around border border-white/50 z-50">
-                        <button onClick={() => setView('dashboard')} className={`p-4 rounded-2xl transition-all ${view === 'dashboard' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>🏠</button>
-                        <button onClick={() => setView('analytics')} className={`p-4 rounded-2xl transition-all ${view === 'analytics' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>📊</button>
-                        <button onClick={() => setView('settings')} className={`p-4 rounded-2xl transition-all ${view === 'settings' ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400'}`}>👨‍👩‍👧</button>
-                    </nav>
+        // Обновление всего
+        function updateAll() {
+            updateCurrentStats();
+            updatePharmacy();
+            updateVaccineHistory();
+            updateStats();
+        }
 
-                    {/* Футер-подтверждение */}
-                    <footer className="mt-20 py-10 text-center text-slate-300 text-[8px] font-black uppercase tracking-[0.4em]">
-                        NO SVG | NO MERMAID | PWA ARCHITECTURE | SINGLE HTML SPA
-                    </footer>
+        // Сообщение
+        function showMessage(text) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = text;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
 
-                    {/* Заглушка модалки */}
-                    {isModalOpen && (
-                        <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[100] p-6 flex items-center justify-center">
-                            <div className="m-card w-full p-8 space-y-6">
-                                <div className="flex justify-between items-center">
-                                    <h2 className="text-xl font-black uppercase">Новое событие</h2>
-                                    <button onClick={() => setIsModalOpen(false)} className="text-2xl">❌</button>
-                                </div>
-                                <input type="text" placeholder="Название (напр. ОРВИ)" className="w-full bg-slate-50 border-none rounded-xl p-4 font-bold" />
-                                <div className="flex gap-4">
-                                    <div className="flex-1">
-                                        <p className="text-[10px] font-black uppercase text-slate-400 mb-1 ml-2">Температура</p>
-                                        <input type="number" step="0.1" placeholder="36.6" className="w-full bg-slate-50 border-none rounded-xl p-4 font-bold text-rose-500" />
-                                    </div>
-                                    <div className="flex-1">
-                                        <p className="text-[10px] font-black uppercase text-slate-400 mb-1 ml-2">Ребенок</p>
-                                        <select className="w-full bg-slate-50 border-none rounded-xl p-4 font-bold text-slate-700">
-                                            <option>Маша</option>
-                                            <option>Матвей</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <button onClick={() => setIsModalOpen(false)} className="w-full btn-primary py-5 shadow-emerald-100 shadow-xl uppercase">Записать</button>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            );
-        };
+        // Экспорт
+        function exportCSV() {
+            let csv = 'Дата;Ребенок;Диагноз;Температура 1й;Температура 2й;Температура 3й;Вес;Назначения;Лекарства\n';
+            entries.forEach(e => {
+                const child = children[e.childIndex]?.name || 'Неизвестно';
+                const antibiotics = e.medicines?.filter(m => m.isAntibiotic).map(m => m.name).join(', ') || '';
+                csv += `"${new Date(e.date).toLocaleString()}";"${child}";"${e.title || ''}";"${e.temps?.day1?.to || ''}";"${e.temps?.day2?.to || ''}";"${e.temps?.day3?.to || ''}";"${e.weight || ''}";"${e.prescription || ''}";"${antibiotics}"\n`;
+            });
+            
+            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'health.csv';
+            link.click();
+        }
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        function exportJSON() {
+            const data = { children, entries, pharmacy, vaccines };
+            const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'backup.json';
+            link.click();
+        }
+
+        // Запуск
+        init();
+    </script>
+    
+    <!-- Service Worker для PWA -->
+    <script>
+        // Этот скрипт создаст service-worker.js если его нет
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swCode = `
+                    const CACHE_NAME = 'health-cache-v1';
+                    
+                    self.addEventListener('install', event => {
+                        self.skipWaiting();
+                    });
+                    
+                    self.addEventListener('activate', event => {
+                        event.waitUntil(clients.claim());
+                    });
+                    
+                    self.addEventListener('fetch', event => {
+                        event.respondWith(
+                            caches.match(event.request)
+                                .then(response => {
+                                    if (response) {
+                                        return response;
+                                    }
+                                    return fetch(event.request).then(response => {
+                                        if (!response || response.status !== 200 || response.type !== 'basic') {
+                                            return response;
+                                        }
+                                        const responseToCache = response.clone();
+                                        caches.open(CACHE_NAME).then(cache => {
+                                            cache.put(event.request, responseToCache);
+                                        });
+                                        return response;
+                                    });
+                                })
+                        );
+                    });
+                `;
+                
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const url = URL.createObjectURL(blob);
+                
+                navigator.serviceWorker.register(url)
+                    .then(reg => console.log('✅ PWA ready for offline use'))
+                    .catch(err => console.log('PWA works without service worker'));
+            });
+        }
     </script>
 </body>
 </html>
-<!-- 
-    Confirms:
-    - Mermaid JS and SVG are completely avoided.
-    - Standard Unicode/Emoji used for all visual symbols.
-    - Single HTML file structure (SPA).
-    - Vibrant palette applied.
-    - Chart.js labels wrapped and tooltips configured.
--->
