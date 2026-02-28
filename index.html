@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -252,26 +253,35 @@
             margin-bottom: 2px;
         }
 
-        /* Плановые прививки */
+        /* Плановые прививки в зеленом поле */
         .planned-vaccines {
             background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(5px);
             -webkit-backdrop-filter: blur(5px);
             border-radius: 14px;
             padding: 12px;
-            margin-top: 12px;
+            margin-top: 8px;
         }
 
         .planned-vaccine-item {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
+            padding: 6px 0;
+            font-size: 13px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 14px;
         }
 
         .planned-vaccine-item:last-child {
             border-bottom: none;
+        }
+
+        .planned-vaccine-name {
+            font-weight: 500;
+        }
+
+        .planned-vaccine-date {
+            opacity: 0.8;
+            font-size: 12px;
         }
 
         /* Карточка болезни */
@@ -368,17 +378,6 @@
             min-height: 40px;
         }
 
-        .healthy-check {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--background);
-            padding: 8px 16px;
-            border-radius: 12px;
-            cursor: pointer;
-            min-height: 50px;
-        }
-
         /* Дата выздоровления */
         .recovery-date {
             display: flex;
@@ -406,6 +405,13 @@
             border-radius: 10px;
             font-size: 15px;
             min-height: 44px;
+        }
+
+        .illness-duration {
+            font-size: 13px;
+            color: var(--recovery);
+            margin-top: 4px;
+            text-align: right;
         }
 
         .doctor-prescription {
@@ -606,6 +612,15 @@
             min-height: 80px;
         }
 
+        .vaccine-item.planned {
+            border-left: 4px solid var(--secondary);
+            background: var(--secondary-light);
+        }
+
+        .vaccine-item.done {
+            border-left: 4px solid var(--primary);
+        }
+
         .vaccine-item .edit-vaccine-btn {
             position: absolute;
             top: 12px;
@@ -632,6 +647,24 @@
             color: white;
             cursor: pointer;
             font-size: 16px;
+        }
+
+        .vaccine-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-left: 8px;
+        }
+
+        .status-done {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+        }
+
+        .status-planned {
+            background: var(--secondary-light);
+            color: var(--secondary);
         }
 
         /* Аптечка */
@@ -837,7 +870,14 @@
         .history-date {
             font-size: 13px;
             color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .history-duration {
+            font-size: 12px;
+            color: var(--recovery);
             margin-bottom: 8px;
+            font-weight: 500;
         }
 
         .history-recovery {
@@ -1237,18 +1277,16 @@
                         <div class="stat-value" id="currentWeight">--</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-label">Болеет</div>
-                        <div class="stat-value" id="illnessDays">0</div>
+                        <div class="stat-label">Прививка</div>
+                        <div class="stat-value" id="plannedVaccineName">—</div>
                     </div>
                 </div>
                 
                 <!-- Контейнер для строк детей в режиме "Все" -->
                 <div id="allChildrenStats" style="display: none;"></div>
                 
-                <!-- Плановые прививки -->
-                <div class="planned-vaccines" id="plannedVaccines">
-                    <div style="font-size:13px; margin-bottom:8px; opacity:0.9;">📅 Плановые прививки:</div>
-                </div>
+                <!-- Плановые прививки - только список -->
+                <div class="planned-vaccines" id="plannedVaccines"></div>
             </div>
             
             <!-- Карточка болезни -->
@@ -1264,17 +1302,15 @@
                 <!-- Вес и дата -->
                 <div class="illness-row">
                     <input type="number" id="illnessWeight" placeholder="Вес (кг)" step="0.1">
-                    <label class="healthy-check">
-                        <input type="checkbox" id="illnessHealthy"> ✅ Здоров
-                    </label>
                     <input type="date" id="illnessDate" value="">
                 </div>
                 
-                <!-- Дата выздоровления -->
+                <!-- Дата выздоровления (пустая по умолчанию) -->
                 <div class="recovery-date">
                     <label>✨ Выздоровление</label>
-                    <input type="date" id="recoveryDate">
+                    <input type="date" id="recoveryDate" onchange="updateIllnessDuration()">
                 </div>
+                <div id="illnessDurationDisplay" class="illness-duration"></div>
                 
                 <!-- 1-й день -->
                 <div class="illness-row">
@@ -1373,7 +1409,7 @@
                     <button class="add-vaccine-btn" onclick="saveVaccine()">➕ Сохранить прививку</button>
                 </div>
                 
-                <h3>История прививок</h3>
+                <h3>Все прививки</h3>
                 <div class="vaccine-history" id="vaccineHistory"></div>
             </div>
             
@@ -1538,10 +1574,33 @@
             document.getElementById('illnessDate').value = today;
             document.getElementById('vaccineDate').value = today;
             
-            // Дата выздоровления по умолчанию +7 дней
-            const recoveryDate = new Date();
-            recoveryDate.setDate(recoveryDate.getDate() + 7);
-            document.getElementById('recoveryDate').value = recoveryDate.toISOString().split('T')[0];
+            // Дата выздоровления пустая по умолчанию
+            document.getElementById('recoveryDate').value = '';
+            
+            updateIllnessDuration();
+        }
+
+        function updateIllnessDuration() {
+            const startDate = document.getElementById('illnessDate').value;
+            const endDate = document.getElementById('recoveryDate').value;
+            
+            if (startDate && endDate) {
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                const diffTime = Math.abs(end - start);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                
+                document.getElementById('illnessDurationDisplay').innerHTML = 
+                    `📊 Длительность болезни: ${diffDays} ${getDaysWord(diffDays)}`;
+            } else {
+                document.getElementById('illnessDurationDisplay').innerHTML = '';
+            }
+        }
+
+        function getDaysWord(days) {
+            if (days % 10 === 1 && days % 100 !== 11) return 'день';
+            if ([2,3,4].includes(days % 10) && ![12,13,14].includes(days % 100)) return 'дня';
+            return 'дней';
         }
 
         function setDefaultPeriod() {
@@ -1552,7 +1611,6 @@
             document.getElementById('periodEnd').value = today.toISOString().split('T')[0];
             document.getElementById('periodStart').value = sixMonthsAgo.toISOString().split('T')[0];
             
-            // Устанавливаем текущий месяц в селекте
             const currentMonth = today.getMonth();
             document.getElementById('monthSelect').value = currentMonth;
         }
@@ -1601,7 +1659,6 @@
             const container = document.getElementById('childrenSelector');
             let html = '';
             
-            // Кнопка "Все"
             html += `
                 <div class="child-item">
                     <button class="child-btn all-btn ${selectedChild === 'all' ? 'active' : ''}" onclick="selectChild('all')">👥 Все</button>
@@ -1779,7 +1836,6 @@
             const childIndex = document.getElementById('illnessChild').value;
             const title = document.getElementById('illnessTitle').value.trim();
             const weight = document.getElementById('illnessWeight').value;
-            const isHealthy = document.getElementById('illnessHealthy').checked;
             const recoveryDate = document.getElementById('recoveryDate').value;
             const editId = document.getElementById('editingEntryId').value;
             
@@ -1807,7 +1863,7 @@
                     if (name) {
                         medicines.push({ name, isAntibiotic });
                         
-                        // Добавляем в аптечку, если такого еще нет
+                        // Добавляем в аптечку
                         const exists = pharmacy.some(p => 
                             p.name.toLowerCase() === name.toLowerCase() && 
                             p.childIndex === parseInt(childIndex)
@@ -1832,7 +1888,6 @@
                 childIndex: parseInt(childIndex),
                 title: title || 'Осмотр',
                 weight: weight,
-                isHealthy: isHealthy,
                 recoveryDate: recoveryDate,
                 temps: temps,
                 tempMoreThan3: tempMoreThan3,
@@ -1855,11 +1910,9 @@
             localStorage.setItem('pharmacy', JSON.stringify(pharmacy));
             saveData();
             
-            // Очищаем форму после сохранения (для новой записи)
             if (!editId) {
                 clearIllnessForm();
             } else {
-                // После редактирования тоже очищаем и выходим из режима редактирования
                 clearIllnessForm();
             }
             
@@ -1870,7 +1923,6 @@
             document.getElementById('editingEntryId').value = '';
             document.getElementById('illnessChild').value = '';
             document.getElementById('illnessWeight').value = '';
-            document.getElementById('illnessHealthy').checked = false;
             document.getElementById('temp1From').value = '36.6';
             document.getElementById('temp1To').value = '36.6';
             document.getElementById('temp2From').value = '36.6';
@@ -1883,7 +1935,6 @@
             document.getElementById('prescriptionText').value = '';
             document.getElementById('prescriptionPhotoPreview').innerHTML = '';
             
-            // Очищаем список лекарств и добавляем одну пустую строку
             clearMedicinesList();
             addMedicineRow();
             
@@ -1898,10 +1949,8 @@
             document.getElementById('editingEntryId').value = entry.id;
             document.getElementById('illnessChild').value = entry.childIndex;
             document.getElementById('illnessWeight').value = entry.weight || '';
-            document.getElementById('illnessHealthy').checked = entry.isHealthy || false;
             document.getElementById('recoveryDate').value = entry.recoveryDate || '';
             
-            // Заполняем температуру
             if (entry.temps) {
                 document.getElementById('temp1From').value = entry.temps.day1?.from || '36.6';
                 document.getElementById('temp1To').value = entry.temps.day1?.to || '36.6';
@@ -1925,7 +1974,6 @@
                     `<img src="${entry.prescriptionPhoto}" class="photo-preview">`;
             }
             
-            // Заполняем лекарства
             clearMedicinesList();
             if (entry.medicines && entry.medicines.length > 0) {
                 entry.medicines.forEach(med => {
@@ -1934,6 +1982,8 @@
             } else {
                 addMedicineRow();
             }
+            
+            updateIllnessDuration();
         }
 
         // Прививки
@@ -1971,12 +2021,22 @@
             
             localStorage.setItem('vaccines', JSON.stringify(vaccines));
             
-            document.getElementById('editingVaccineId').value = '';
-            document.getElementById('vaccineName').value = '';
-            document.getElementById('revaccinationDate').value = '';
+            // Очищаем форму после сохранения
+            clearVaccineForm();
+            
             updateVaccineHistory();
             updateCurrentStats();
             updateStats();
+        }
+
+        function clearVaccineForm() {
+            document.getElementById('editingVaccineId').value = '';
+            document.getElementById('vaccineChild').value = '';
+            document.getElementById('vaccineName').value = '';
+            document.getElementById('vaccineDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('vaccineStatus').value = 'done';
+            document.getElementById('revaccinationDate').value = '';
+            document.getElementById('vaccineTemp').value = '36.6';
         }
 
         function editVaccine(id) {
@@ -2011,24 +2071,27 @@
                 filteredVaccines = vaccines.filter(v => v.childIndex === selectedChild);
             }
             
-            const doneVaccines = filteredVaccines.filter(v => v.status === 'done')
-                .sort((a, b) => new Date(b.date) - new Date(a.date));
+            const sortedVaccines = filteredVaccines.sort((a, b) => new Date(b.date) - new Date(a.date));
             
-            if (doneVaccines.length === 0) {
-                container.innerHTML = '<div style="color:#8E8E93; text-align:center; padding:20px;">Нет сделанных прививок</div>';
+            if (sortedVaccines.length === 0) {
+                container.innerHTML = '<div style="color:#8E8E93; text-align:center; padding:20px;">Нет прививок</div>';
                 return;
             }
             
-            container.innerHTML = doneVaccines.map(v => {
+            container.innerHTML = sortedVaccines.map(v => {
                 const child = children[v.childIndex]?.name || 'Неизвестно';
                 const date = new Date(v.date).toLocaleDateString();
+                const statusClass = v.status === 'done' ? 'status-done' : 'status-planned';
+                const statusText = v.status === 'done' ? '✅ Сделано' : '📅 Запланировано';
+                const itemClass = v.status === 'planned' ? 'planned' : 'done';
                 
                 return `
-                    <div class="vaccine-item">
+                    <div class="vaccine-item ${itemClass}">
                         <button class="edit-vaccine-btn" onclick="editVaccine(${v.id})">✏️</button>
                         <button class="delete-vaccine-btn" onclick="deleteVaccine(${v.id})">🗑️</button>
                         <div style="font-weight:600;">${child} - ${v.name}</div>
                         <div style="font-size:13px; color:#8E8E93;">${date}</div>
+                        <span class="vaccine-status ${statusClass}">${statusText}</span>
                         ${v.revaccination ? `<div style="font-size:12px; margin-top:4px;">📅 Ревакцинация: ${new Date(v.revaccination).toLocaleDateString()}</div>` : ''}
                         ${v.temperature && v.temperature != 36.6 ? `<div style="font-size:12px; color:#FF3B30;">🌡️ Реакция: ${v.temperature}°C</div>` : ''}
                     </div>
@@ -2203,7 +2266,6 @@
             const allChildrenContainer = document.getElementById('allChildrenStats');
             
             if (selectedChild !== 'all' && children[selectedChild]) {
-                // Режим одного ребенка - показываем обычный заголовок
                 statsHeader.style.display = 'grid';
                 allChildrenContainer.style.display = 'none';
                 
@@ -2214,59 +2276,37 @@
                     const lastTemp = lastEntry.temps?.day3?.to || lastEntry.temps?.day2?.to || lastEntry.temps?.day1?.to || '36.6';
                     document.getElementById('currentTemp').innerHTML = lastTemp + '°C';
                     document.getElementById('currentWeight').innerHTML = lastEntry.weight ? lastEntry.weight + ' кг' : (children[selectedChild].weight || '--') + ' кг';
-                    document.getElementById('currentState').innerHTML = lastEntry.isHealthy ? '✅ Здоров' : (lastEntry.title || 'Болеет');
+                    document.getElementById('currentState').innerHTML = lastEntry.title || 'Здоров';
                 } else {
                     document.getElementById('currentTemp').innerHTML = '36.6°C';
                     document.getElementById('currentWeight').innerHTML = (children[selectedChild].weight || '--') + ' кг';
                     document.getElementById('currentState').innerHTML = 'Здоров';
                 }
                 
-                const thirtyDaysAgo = new Date();
-                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-                
-                const recentEntries = childEntries.filter(e => new Date(e.date) > thirtyDaysAgo);
-                const symptomDays = new Set();
-                recentEntries.forEach(e => {
-                    if (e.temps) {
-                        const hasFever = 
-                            (e.temps.day1?.to && parseFloat(e.temps.day1.to) > 37) ||
-                            (e.temps.day2?.to && parseFloat(e.temps.day2.to) > 37) ||
-                            (e.temps.day3?.to && parseFloat(e.temps.day3.to) > 37) ||
-                            e.tempMoreThan3;
-                        
-                        if (hasFever) {
-                            symptomDays.add(new Date(e.date).toDateString());
-                        }
-                    }
-                });
-                document.getElementById('illnessDays').innerHTML = symptomDays.size + ' дн.';
-                
-                // Плановые прививки для одного ребенка
                 const plannedVaccines = vaccines.filter(v => v.childIndex === selectedChild && v.status === 'planned')
                     .sort((a, b) => new Date(a.date) - new Date(b.date));
                 
-                const plannedContainer = document.getElementById('plannedVaccines');
                 if (plannedVaccines.length > 0) {
-                    let plannedHtml = '<div style="font-size:13px; margin-bottom:8px; opacity:0.9;">📅 Плановые прививки:</div>';
+                    const nearestVaccine = plannedVaccines[0];
+                    document.getElementById('plannedVaccineName').innerHTML = `${nearestVaccine.name}`;
+                    
+                    let plannedHtml = '';
                     plannedVaccines.forEach(v => {
                         plannedHtml += `
                             <div class="planned-vaccine-item">
-                                <span>${v.name}</span>
-                                <span>${new Date(v.date).toLocaleDateString()}</span>
+                                <span class="planned-vaccine-name">${v.name}</span>
+                                <span class="planned-vaccine-date">${new Date(v.date).toLocaleDateString()}</span>
                             </div>
                         `;
                     });
-                    plannedContainer.innerHTML = plannedHtml;
+                    document.getElementById('plannedVaccines').innerHTML = plannedHtml;
                 } else {
-                    plannedContainer.innerHTML = '<div style="font-size:13px;">📅 Нет плановых прививок</div>';
+                    document.getElementById('plannedVaccineName').innerHTML = '—';
+                    document.getElementById('plannedVaccines').innerHTML = '<div style="color:#8E8E93; text-align:center; padding:8px;">Нет плановых прививок</div>';
                 }
             } else {
-                // Режим "Все" - показываем строки для каждого ребенка
                 statsHeader.style.display = 'none';
                 allChildrenContainer.style.display = 'block';
-                
-                const thirtyDaysAgo = new Date();
-                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
                 
                 let allChildrenHtml = '';
                 
@@ -2274,33 +2314,23 @@
                     const childEntries = entries.filter(e => e.childIndex === childIndex);
                     const lastEntry = childEntries.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
                     
-                    // Температура
                     let temp = '36.6°C';
                     let state = 'Здоров';
                     let weight = child.weight ? child.weight + ' кг' : '--';
                     
                     if (lastEntry) {
                         temp = (lastEntry.temps?.day3?.to || lastEntry.temps?.day2?.to || lastEntry.temps?.day1?.to || '36.6') + '°C';
-                        state = lastEntry.isHealthy ? '✅ Здоров' : (lastEntry.title || 'Болеет');
+                        state = lastEntry.title || 'Здоров';
                         weight = lastEntry.weight ? lastEntry.weight + ' кг' : (child.weight || '--') + ' кг';
                     }
                     
-                    // Дни болезни за 30 дней
-                    const recentEntries = childEntries.filter(e => new Date(e.date) > thirtyDaysAgo);
-                    const symptomDays = new Set();
-                    recentEntries.forEach(e => {
-                        if (e.temps) {
-                            const hasFever = 
-                                (e.temps.day1?.to && parseFloat(e.temps.day1.to) > 37) ||
-                                (e.temps.day2?.to && parseFloat(e.temps.day2.to) > 37) ||
-                                (e.temps.day3?.to && parseFloat(e.temps.day3.to) > 37) ||
-                                e.tempMoreThan3;
-                            
-                            if (hasFever) {
-                                symptomDays.add(new Date(e.date).toDateString());
-                            }
-                        }
-                    });
+                    const plannedVaccines = vaccines.filter(v => v.childIndex === childIndex && v.status === 'planned')
+                        .sort((a, b) => new Date(a.date) - new Date(b.date));
+                    
+                    let vaccineName = '—';
+                    if (plannedVaccines.length > 0) {
+                        vaccineName = plannedVaccines[0].name;
+                    }
                     
                     allChildrenHtml += `
                         <div class="child-stats-row">
@@ -2319,8 +2349,8 @@
                                     <div>${weight}</div>
                                 </div>
                                 <div class="child-stat">
-                                    <div class="child-stat-label">Болеет</div>
-                                    <div>${symptomDays.size} дн.</div>
+                                    <div class="child-stat-label">Прививка</div>
+                                    <div>${vaccineName}</div>
                                 </div>
                             </div>
                         </div>
@@ -2329,25 +2359,24 @@
                 
                 allChildrenContainer.innerHTML = allChildrenHtml;
                 
-                // Плановые прививки для всех детей - каждая прививка в отдельной строке
                 const plannedVaccines = vaccines.filter(v => v.status === 'planned')
                     .sort((a, b) => new Date(a.date) - new Date(b.date));
                 
                 const plannedContainer = document.getElementById('plannedVaccines');
                 if (plannedVaccines.length > 0) {
-                    let plannedHtml = '<div style="font-size:13px; margin-bottom:8px; opacity:0.9;">📅 Плановые прививки:</div>';
+                    let plannedHtml = '';
                     plannedVaccines.forEach(v => {
                         const child = children[v.childIndex]?.name || 'Неизвестно';
                         plannedHtml += `
                             <div class="planned-vaccine-item">
-                                <span>${child}: ${v.name}</span>
-                                <span>${new Date(v.date).toLocaleDateString()}</span>
+                                <span class="planned-vaccine-name">${child}: ${v.name}</span>
+                                <span class="planned-vaccine-date">${new Date(v.date).toLocaleDateString()}</span>
                             </div>
                         `;
                     });
                     plannedContainer.innerHTML = plannedHtml;
                 } else {
-                    plannedContainer.innerHTML = '<div style="font-size:13px;">📅 Нет плановых прививок</div>';
+                    plannedContainer.innerHTML = '<div style="color:#8E8E93; text-align:center; padding:8px;">Нет плановых прививок</div>';
                 }
             }
         }
@@ -2367,18 +2396,16 @@
                 filteredEntries = filteredEntries.filter(e => e.childIndex === selectedChild);
             }
             
-            const diagnosisList = []; // Список всех диагнозов с датами
+            const diagnosisList = [];
             const antibioticsList = [];
             const illnessSet = new Set();
             
             filteredEntries.forEach(e => {
-                // Считаем болезни
                 if (e.title && e.title !== 'Осмотр') {
                     const key = (selectedChild === 'all' ? e.childIndex + '_' : '') + 
                                 new Date(e.date).toDateString() + '_' + e.title;
                     illnessSet.add(key);
                     
-                    // Добавляем в список диагнозов с датой
                     diagnosisList.push({
                         name: e.title,
                         child: children[e.childIndex]?.name,
@@ -2387,7 +2414,6 @@
                     });
                 }
                 
-                // Антибиотики
                 if (e.medicines) {
                     e.medicines.forEach(m => {
                         if (m.isAntibiotic) {
@@ -2404,7 +2430,6 @@
             document.getElementById('totalIllnesses').innerHTML = illnessSet.size;
             document.getElementById('totalAntibiotics').innerHTML = antibioticsList.length;
             
-            // Диагнозы - сортируем по дате (сначала новые)
             diagnosisList.sort((a, b) => new Date(b.date) - new Date(a.date));
             
             let diagnosisHtml = '';
@@ -2422,7 +2447,6 @@
             });
             document.getElementById('diagnosisList').innerHTML = diagnosisHtml || '<div class="diagnosis-item">Нет диагнозов</div>';
             
-            // Антибиотики - сортируем по дате
             antibioticsList.sort((a, b) => new Date(b.date) - new Date(a.date));
             document.getElementById('antibioticsList').innerHTML = antibioticsList.length ?
                 antibioticsList.map(a => {
@@ -2455,7 +2479,6 @@
                 filteredEntries = entries.filter(e => e.childIndex === selectedChild);
             }
             
-            // Поиск только в истории
             if (search) {
                 filteredEntries = filteredEntries.filter(e => 
                     (e.title && e.title.toLowerCase().includes(search)) ||
@@ -2509,6 +2532,15 @@
                     prescriptionHtml = `<div class="history-prescription">📋 ${e.prescription}</div>`;
                 }
                 
+                let durationHtml = '';
+                if (e.recoveryDate) {
+                    const start = new Date(e.date);
+                    const end = new Date(e.recoveryDate);
+                    const diffTime = Math.abs(end - start);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                    durationHtml = `<div class="history-duration">📊 Длительность: ${diffDays} ${getDaysWord(diffDays)}</div>`;
+                }
+                
                 illnessHtml += `
                     <div class="history-item">
                         <div class="history-actions">
@@ -2520,6 +2552,7 @@
                             <span class="history-child">${child}</span>
                         </div>
                         <div class="history-date">${date}</div>
+                        ${durationHtml}
                         ${e.recoveryDate ? `<div class="history-recovery">✨ Выздоровление: ${new Date(e.recoveryDate).toLocaleDateString()}</div>` : ''}
                         ${e.weight ? `<div class="history-date">⚖️ Вес: ${e.weight} кг</div>` : ''}
                         ${tempsHtml}
@@ -2567,11 +2600,21 @@
 
         // Экспорт
         function exportCSV() {
-            let csv = 'Дата;Ребенок;Диагноз;Температура 1й;Температура 2й;Температура 3й;Вес;Выздоровление;Назначения;Лекарства\n';
+            let csv = 'Дата;Ребенок;Диагноз;Температура 1й;Температура 2й;Температура 3й;Вес;Выздоровление;Длительность;Назначения;Лекарства\n';
             entries.forEach(e => {
                 const child = children[e.childIndex]?.name || 'Неизвестно';
                 const antibiotics = e.medicines?.filter(m => m.isAntibiotic).map(m => m.name).join(', ') || '';
-                csv += `"${new Date(e.date).toLocaleString()}";"${child}";"${e.title || ''}";"${e.temps?.day1?.to || ''}";"${e.temps?.day2?.to || ''}";"${e.temps?.day3?.to || ''}";"${e.weight || ''}";"${e.recoveryDate || ''}";"${e.prescription || ''}";"${antibiotics}"\n`;
+                
+                let duration = '';
+                if (e.recoveryDate) {
+                    const start = new Date(e.date);
+                    const end = new Date(e.recoveryDate);
+                    const diffTime = Math.abs(end - start);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                    duration = diffDays;
+                }
+                
+                csv += `"${new Date(e.date).toLocaleString()}";"${child}";"${e.title || ''}";"${e.temps?.day1?.to || ''}";"${e.temps?.day2?.to || ''}";"${e.temps?.day3?.to || ''}";"${e.weight || ''}";"${e.recoveryDate || ''}";"${duration}";"${e.prescription || ''}";"${antibiotics}"\n`;
             });
             
             const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv' });
@@ -2596,7 +2639,6 @@
     
     <!-- Service Worker для PWA -->
     <script>
-        // Этот скрипт создаст service-worker.js если его нет
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 const swCode = `
