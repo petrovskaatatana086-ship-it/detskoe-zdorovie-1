@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -36,6 +37,8 @@
             --card-bg: rgba(255, 255, 255, 0.9);
             --border: rgba(60, 60, 67, 0.08);
             --glass: rgba(255, 255, 255, 0.7);
+            --recovery: #5856D6;
+            --recovery-light: #EDEDFF;
         }
 
         * {
@@ -377,6 +380,35 @@
             min-height: 50px;
         }
 
+        /* Дата выздоровления */
+        .recovery-date {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--recovery-light);
+            padding: 8px 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 1px solid var(--recovery);
+        }
+
+        .recovery-date label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: var(--recovery);
+            font-weight: 500;
+        }
+
+        .recovery-date input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid var(--recovery);
+            border-radius: 10px;
+            font-size: 15px;
+            min-height: 44px;
+        }
+
         .doctor-prescription {
             background: var(--background);
             padding: 16px;
@@ -435,6 +467,7 @@
             gap: 8px;
             padding: 8px 0;
             border-bottom: 1px solid var(--border);
+            align-items: center;
         }
 
         .medicine-item:last-child {
@@ -746,6 +779,7 @@
 
         .detailed-history h3 {
             color: var(--secondary);
+            margin-bottom: 16px;
         }
 
         /* Поиск - только в истории */
@@ -753,7 +787,7 @@
             background: var(--background);
             border-radius: 12px;
             padding: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
 
         .search-input {
@@ -767,7 +801,7 @@
         }
 
         .history-list {
-            max-height: 400px;
+            max-height: 500px;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
@@ -778,6 +812,7 @@
             border-radius: 14px;
             margin: 12px 0;
             position: relative;
+            border-left: 4px solid var(--secondary);
         }
 
         .history-header {
@@ -791,6 +826,7 @@
         .history-name {
             font-weight: 600;
             font-size: 16px;
+            color: var(--secondary);
         }
 
         .history-child {
@@ -803,6 +839,13 @@
             font-size: 13px;
             color: var(--text-secondary);
             margin-bottom: 8px;
+        }
+
+        .history-recovery {
+            font-size: 12px;
+            color: var(--recovery);
+            margin-bottom: 8px;
+            font-weight: 500;
         }
 
         .history-temps {
@@ -836,6 +879,7 @@
             font-size: 13px;
             color: var(--text);
             font-style: italic;
+            border: 1px solid var(--border);
         }
 
         .history-actions {
@@ -858,14 +902,25 @@
             background: white;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             font-size: 16px;
+            transition: all 0.2s;
         }
 
         .history-edit-btn {
             color: var(--primary);
         }
 
+        .history-edit-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
         .history-delete-btn {
             color: var(--danger);
+        }
+
+        .history-delete-btn:hover {
+            background: var(--danger);
+            color: white;
         }
 
         /* Правая панель - Статистика */
@@ -1185,6 +1240,12 @@
                     <input type="date" id="illnessDate" value="">
                 </div>
                 
+                <!-- Дата выздоровления -->
+                <div class="recovery-date">
+                    <label>✨ Выздоровление</label>
+                    <input type="date" id="recoveryDate">
+                </div>
+                
                 <!-- 1-й день -->
                 <div class="illness-row">
                     <div class="temp-range">
@@ -1240,12 +1301,7 @@
                 
                 <!-- Лекарства -->
                 <div class="medicines-list" id="medicinesContainer">
-                    <div class="medicine-item" id="medicineTemplate">
-                        <input type="text" class="medicine-name-input" placeholder="Название лекарства">
-                        <label class="antibiotic-check">
-                            <input type="checkbox" class="antibiotic-checkbox"> Антибиотик
-                        </label>
-                    </div>
+                    <!-- Шаблон будет заполняться динамически -->
                 </div>
                 <button class="add-medicine-btn" onclick="addMedicineRow()">➕ Добавить лекарство</button>
                 
@@ -1334,7 +1390,7 @@
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="value" id="totalIllnesses">0</div>
-                    <div class="label">Дней с температурой</div>
+                    <div class="label">Болезни</div>
                 </div>
                 <div class="stat-card">
                     <div class="value" id="totalAntibiotics">0</div>
@@ -1414,6 +1470,11 @@
             setDefaultPeriod();
             updateAll();
             
+            // Добавляем первую строку лекарства при загрузке
+            if (document.getElementById('medicinesContainer').children.length === 0) {
+                addMedicineRow();
+            }
+            
             // Регистрируем Service Worker для PWA
             registerServiceWorker();
         }
@@ -1431,6 +1492,11 @@
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('illnessDate').value = today;
             document.getElementById('vaccineDate').value = today;
+            
+            // Дата выздоровления по умолчанию +7 дней
+            const recoveryDate = new Date();
+            recoveryDate.setDate(recoveryDate.getDate() + 7);
+            document.getElementById('recoveryDate').value = recoveryDate.toISOString().split('T')[0];
         }
 
         function setDefaultPeriod() {
@@ -1595,18 +1661,26 @@
         }
 
         // Лекарства
-        function addMedicineRow() {
+        function addMedicineRow(name = '', isAntibiotic = false) {
             const container = document.getElementById('medicinesContainer');
-            const template = document.getElementById('medicineTemplate').cloneNode(true);
-            template.id = 'medicine_' + Date.now();
+            const rowId = 'medicine_' + Date.now() + Math.random();
             
-            const input = template.querySelector('.medicine-name-input');
-            input.value = '';
+            const row = document.createElement('div');
+            row.className = 'medicine-item';
+            row.id = rowId;
+            row.innerHTML = `
+                <input type="text" class="medicine-name-input" placeholder="Название лекарства" value="${name.replace(/"/g, '&quot;')}">
+                <label class="antibiotic-check">
+                    <input type="checkbox" class="antibiotic-checkbox" ${isAntibiotic ? 'checked' : ''}> Антибиотик
+                </label>
+            `;
             
-            const checkbox = template.querySelector('.antibiotic-checkbox');
-            checkbox.checked = false;
-            
-            container.appendChild(template);
+            container.appendChild(row);
+        }
+
+        function clearMedicinesList() {
+            const container = document.getElementById('medicinesContainer');
+            container.innerHTML = '';
         }
 
         function previewPrescriptionPhoto(event) {
@@ -1628,6 +1702,7 @@
             const title = document.getElementById('illnessTitle').value.trim();
             const weight = document.getElementById('illnessWeight').value;
             const isHealthy = document.getElementById('illnessHealthy').checked;
+            const recoveryDate = document.getElementById('recoveryDate').value;
             const editId = document.getElementById('editingEntryId').value;
             
             if (!childIndex) { alert('Выберите ребенка!'); return; }
@@ -1642,27 +1717,34 @@
             const tempDaysCount = document.getElementById('tempDaysCount').value;
             const prescription = document.getElementById('prescriptionText').value.trim();
             
+            // Собираем лекарства
             const medicines = [];
             document.querySelectorAll('.medicine-item').forEach(item => {
-                const name = item.querySelector('.medicine-name-input')?.value.trim();
-                const isAntibiotic = item.querySelector('.antibiotic-checkbox')?.checked;
-                if (name) {
-                    medicines.push({ name, isAntibiotic });
+                const input = item.querySelector('.medicine-name-input');
+                if (input) {
+                    const name = input.value.trim();
+                    const checkbox = item.querySelector('.antibiotic-checkbox');
+                    const isAntibiotic = checkbox ? checkbox.checked : false;
                     
-                    const exists = pharmacy.some(p => 
-                        p.name.toLowerCase() === name.toLowerCase() && 
-                        p.childIndex === parseInt(childIndex)
-                    );
-                    
-                    if (!exists) {
-                        pharmacy.push({
-                            id: Date.now() + Math.random(),
-                            name: name,
-                            childIndex: parseInt(childIndex),
-                            childName: children[parseInt(childIndex)].name,
-                            isAntibiotic: isAntibiotic,
-                            bought: false
-                        });
+                    if (name) {
+                        medicines.push({ name, isAntibiotic });
+                        
+                        // Добавляем в аптечку, если такого еще нет
+                        const exists = pharmacy.some(p => 
+                            p.name.toLowerCase() === name.toLowerCase() && 
+                            p.childIndex === parseInt(childIndex)
+                        );
+                        
+                        if (!exists) {
+                            pharmacy.push({
+                                id: Date.now() + Math.random(),
+                                name: name,
+                                childIndex: parseInt(childIndex),
+                                childName: children[parseInt(childIndex)].name,
+                                isAntibiotic: isAntibiotic,
+                                bought: false
+                            });
+                        }
                     }
                 }
             });
@@ -1673,6 +1755,7 @@
                 title: title || 'Осмотр',
                 weight: weight,
                 isHealthy: isHealthy,
+                recoveryDate: recoveryDate,
                 temps: temps,
                 tempMoreThan3: tempMoreThan3,
                 tempDaysCount: tempDaysCount,
@@ -1693,7 +1776,15 @@
             
             localStorage.setItem('pharmacy', JSON.stringify(pharmacy));
             saveData();
-            clearIllnessForm();
+            
+            // Очищаем форму после сохранения (для новой записи)
+            if (!editId) {
+                clearIllnessForm();
+            } else {
+                // После редактирования тоже очищаем и выходим из режима редактирования
+                clearIllnessForm();
+            }
+            
             updateAll();
         }
 
@@ -1713,14 +1804,11 @@
             document.getElementById('illnessTitle').value = '';
             document.getElementById('prescriptionText').value = '';
             document.getElementById('prescriptionPhotoPreview').innerHTML = '';
-            document.getElementById('medicinesContainer').innerHTML = `
-                <div class="medicine-item" id="medicineTemplate">
-                    <input type="text" class="medicine-name-input" placeholder="Название лекарства">
-                    <label class="antibiotic-check">
-                        <input type="checkbox" class="antibiotic-checkbox"> Антибиотик
-                    </label>
-                </div>
-            `;
+            
+            // Очищаем список лекарств и добавляем одну пустую строку
+            clearMedicinesList();
+            addMedicineRow();
+            
             prescriptionPhoto = null;
             setTodayDate();
         }
@@ -1733,7 +1821,9 @@
             document.getElementById('illnessChild').value = entry.childIndex;
             document.getElementById('illnessWeight').value = entry.weight || '';
             document.getElementById('illnessHealthy').checked = entry.isHealthy || false;
+            document.getElementById('recoveryDate').value = entry.recoveryDate || '';
             
+            // Заполняем температуру
             if (entry.temps) {
                 document.getElementById('temp1From').value = entry.temps.day1?.from || '36.6';
                 document.getElementById('temp1To').value = entry.temps.day1?.to || '36.6';
@@ -1757,16 +1847,14 @@
                     `<img src="${entry.prescriptionPhoto}" class="photo-preview">`;
             }
             
-            if (entry.medicines && entry.medicines.length) {
-                document.getElementById('medicinesContainer').innerHTML = '';
+            // Заполняем лекарства
+            clearMedicinesList();
+            if (entry.medicines && entry.medicines.length > 0) {
                 entry.medicines.forEach(med => {
-                    addMedicineRow();
-                    const lastRow = document.querySelector('#medicinesContainer .medicine-item:last-child');
-                    if (lastRow) {
-                        lastRow.querySelector('.medicine-name-input').value = med.name;
-                        lastRow.querySelector('.antibiotic-checkbox').checked = med.isAntibiotic;
-                    }
+                    addMedicineRow(med.name, med.isAntibiotic);
                 });
+            } else {
+                addMedicineRow();
             }
         }
 
@@ -2186,7 +2274,7 @@
             }
         }
 
-        // Статистика за период
+        // Статистика за период - ИСПРАВЛЕНО!
         function updateStats() {
             const startDate = new Date(document.getElementById('periodStart').value);
             const endDate = new Date(document.getElementById('periodEnd').value);
@@ -2203,16 +2291,23 @@
             
             const diagnosisCount = {};
             const antibioticsList = [];
-            const daysWithTemp = new Set();
+            const illnessSet = new Set(); // Для подсчета уникальных заболеваний
             
             filteredEntries.forEach(e => {
-                // Диагнозы
+                // Считаем болезни (уникальные по дате и диагнозу)
                 if (e.title && e.title !== 'Осмотр') {
-                    const key = e.title + (selectedChild === 'all' ? '_' + e.childIndex : '');
-                    diagnosisCount[key] = {
+                    // В режиме "Все" - учитываем ребенка + дату + диагноз
+                    // В режиме одного ребенка - учитываем дату + диагноз
+                    const key = (selectedChild === 'all' ? e.childIndex + '_' : '') + 
+                                new Date(e.date).toDateString() + '_' + e.title;
+                    illnessSet.add(key);
+                    
+                    // Для списка диагнозов
+                    const diagKey = e.title + (selectedChild === 'all' ? '_' + e.childIndex : '');
+                    diagnosisCount[diagKey] = {
                         name: e.title,
                         child: children[e.childIndex]?.name,
-                        count: (diagnosisCount[key]?.count || 0) + 1
+                        count: (diagnosisCount[diagKey]?.count || 0) + 1
                     };
                 }
                 
@@ -2228,23 +2323,10 @@
                         }
                     });
                 }
-                
-                // Дни с температурой
-                if (e.temps) {
-                    const hasFever = 
-                        (e.temps.day1?.to && parseFloat(e.temps.day1.to) > 37) ||
-                        (e.temps.day2?.to && parseFloat(e.temps.day2.to) > 37) ||
-                        (e.temps.day3?.to && parseFloat(e.temps.day3.to) > 37) ||
-                        e.tempMoreThan3;
-                    
-                    if (hasFever) {
-                        const key = new Date(e.date).toDateString() + (selectedChild === 'all' ? '_' + e.childIndex : '');
-                        daysWithTemp.add(key);
-                    }
-                }
             });
             
-            document.getElementById('totalIllnesses').innerHTML = daysWithTemp.size;
+            // Количество болезней = размер Set'а с уникальными заболеваниями
+            document.getElementById('totalIllnesses').innerHTML = illnessSet.size;
             document.getElementById('totalAntibiotics').innerHTML = antibioticsList.length;
             
             // Диагнозы - каждый в отдельной строке
@@ -2351,7 +2433,8 @@
                             <span class="history-child">${child}</span>
                         </div>
                         <div class="history-date">${date}</div>
-                        ${e.weight ? `<div class="history-date">⚖️ ${e.weight} кг</div>` : ''}
+                        ${e.recoveryDate ? `<div class="history-recovery">✨ Выздоровление: ${new Date(e.recoveryDate).toLocaleDateString()}</div>` : ''}
+                        ${e.weight ? `<div class="history-date">⚖️ Вес: ${e.weight} кг</div>` : ''}
                         ${tempsHtml}
                         ${medicinesHtml}
                         ${prescriptionHtml}
@@ -2397,11 +2480,11 @@
 
         // Экспорт
         function exportCSV() {
-            let csv = 'Дата;Ребенок;Диагноз;Температура 1й;Температура 2й;Температура 3й;Вес;Назначения;Лекарства\n';
+            let csv = 'Дата;Ребенок;Диагноз;Температура 1й;Температура 2й;Температура 3й;Вес;Выздоровление;Назначения;Лекарства\n';
             entries.forEach(e => {
                 const child = children[e.childIndex]?.name || 'Неизвестно';
                 const antibiotics = e.medicines?.filter(m => m.isAntibiotic).map(m => m.name).join(', ') || '';
-                csv += `"${new Date(e.date).toLocaleString()}";"${child}";"${e.title || ''}";"${e.temps?.day1?.to || ''}";"${e.temps?.day2?.to || ''}";"${e.temps?.day3?.to || ''}";"${e.weight || ''}";"${e.prescription || ''}";"${antibiotics}"\n`;
+                csv += `"${new Date(e.date).toLocaleString()}";"${child}";"${e.title || ''}";"${e.temps?.day1?.to || ''}";"${e.temps?.day2?.to || ''}";"${e.temps?.day3?.to || ''}";"${e.weight || ''}";"${e.recoveryDate || ''}";"${e.prescription || ''}";"${antibiotics}"\n`;
             });
             
             const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv' });
