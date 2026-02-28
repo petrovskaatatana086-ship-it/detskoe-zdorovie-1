@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -1299,9 +1298,8 @@
                     <option value="">👶 Выберите ребенка</option>
                 </select>
                 
-                <!-- Вес и дата -->
+                <!-- Дата -->
                 <div class="illness-row">
-                    <input type="number" id="illnessWeight" placeholder="Вес (кг)" step="0.1">
                     <input type="date" id="illnessDate" value="">
                 </div>
                 
@@ -1499,7 +1497,7 @@
             <h2 id="childModalTitle">👶 Добавить ребенка</h2>
             <input type="hidden" id="editingChildId" value="">
             <input type="text" id="childName" placeholder="Имя">
-            <input type="date" id="childBirthDate" placeholder="Дата рождения">
+            <input type="number" id="childAge" placeholder="Возраст (лет)">
             <input type="number" id="childWeight" placeholder="Вес (кг)" step="0.1">
             <div class="modal-actions">
                 <button class="save-btn" onclick="saveChild()">Сохранить</button>
@@ -1666,11 +1664,9 @@
             `;
             
             children.forEach((child, i) => {
-                const age = child.birthDate ? calculateAge(child.birthDate) : '?';
-                
                 html += `
                     <div class="child-item">
-                        <button class="child-btn ${selectedChild === i ? 'active' : ''}" onclick="selectChild(${i})">${child.name} (${age} лет, ${child.weight || '?'} кг)</button>
+                        <button class="child-btn ${selectedChild === i ? 'active' : ''}" onclick="selectChild(${i})">${child.name} (${child.age} лет, ${child.weight || '?'} кг)</button>
                         <button class="edit-child-btn" onclick="editChild(${i})">✏️</button>
                         <button class="delete-child-btn" onclick="deleteChild(${i})">🗑️</button>
                     </div>
@@ -1690,17 +1686,6 @@
             });
         }
 
-        function calculateAge(birthDate) {
-            const today = new Date();
-            const birth = new Date(birthDate);
-            let age = today.getFullYear() - birth.getFullYear();
-            const m = today.getMonth() - birth.getMonth();
-            if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
-                age--;
-            }
-            return age;
-        }
-
         function selectChild(index) {
             selectedChild = index;
             loadChildren();
@@ -1711,7 +1696,7 @@
             document.getElementById('childModalTitle').innerHTML = '👶 Добавить ребенка';
             document.getElementById('editingChildId').value = '';
             document.getElementById('childName').value = '';
-            document.getElementById('childBirthDate').value = '';
+            document.getElementById('childAge').value = '';
             document.getElementById('childWeight').value = '';
             document.getElementById('childModal').style.display = 'flex';
         }
@@ -1721,7 +1706,7 @@
             document.getElementById('childModalTitle').innerHTML = '✏️ Редактировать ребенка';
             document.getElementById('editingChildId').value = index;
             document.getElementById('childName').value = child.name;
-            document.getElementById('childBirthDate').value = child.birthDate || '';
+            document.getElementById('childAge').value = child.age || '';
             document.getElementById('childWeight').value = child.weight || '';
             document.getElementById('childModal').style.display = 'flex';
         }
@@ -1768,15 +1753,15 @@
 
         function saveChild() {
             const name = document.getElementById('childName').value.trim();
-            const birthDate = document.getElementById('childBirthDate').value;
+            const age = document.getElementById('childAge').value;
             const weight = document.getElementById('childWeight').value;
             const editId = document.getElementById('editingChildId').value;
             
-            if (!name || !birthDate) { alert('Заполните имя и дату рождения!'); return; }
+            if (!name || !age) { alert('Заполните имя и возраст!'); return; }
             
             const childData = {
                 name: name,
-                birthDate: birthDate,
+                age: parseInt(age),
                 weight: weight || null
             };
             
@@ -1835,7 +1820,6 @@
         function saveIllness() {
             const childIndex = document.getElementById('illnessChild').value;
             const title = document.getElementById('illnessTitle').value.trim();
-            const weight = document.getElementById('illnessWeight').value;
             const recoveryDate = document.getElementById('recoveryDate').value;
             const editId = document.getElementById('editingEntryId').value;
             
@@ -1887,7 +1871,6 @@
                 id: editId ? parseInt(editId) : Date.now(),
                 childIndex: parseInt(childIndex),
                 title: title || 'Осмотр',
-                weight: weight,
                 recoveryDate: recoveryDate,
                 temps: temps,
                 tempMoreThan3: tempMoreThan3,
@@ -1922,7 +1905,6 @@
         function clearIllnessForm() {
             document.getElementById('editingEntryId').value = '';
             document.getElementById('illnessChild').value = '';
-            document.getElementById('illnessWeight').value = '';
             document.getElementById('temp1From').value = '36.6';
             document.getElementById('temp1To').value = '36.6';
             document.getElementById('temp2From').value = '36.6';
@@ -1948,7 +1930,6 @@
             
             document.getElementById('editingEntryId').value = entry.id;
             document.getElementById('illnessChild').value = entry.childIndex;
-            document.getElementById('illnessWeight').value = entry.weight || '';
             document.getElementById('recoveryDate').value = entry.recoveryDate || '';
             
             if (entry.temps) {
@@ -2275,8 +2256,14 @@
                 if (lastEntry) {
                     const lastTemp = lastEntry.temps?.day3?.to || lastEntry.temps?.day2?.to || lastEntry.temps?.day1?.to || '36.6';
                     document.getElementById('currentTemp').innerHTML = lastTemp + '°C';
-                    document.getElementById('currentWeight').innerHTML = lastEntry.weight ? lastEntry.weight + ' кг' : (children[selectedChild].weight || '--') + ' кг';
-                    document.getElementById('currentState').innerHTML = lastEntry.title || 'Здоров';
+                    document.getElementById('currentWeight').innerHTML = (children[selectedChild].weight || '--') + ' кг';
+                    
+                    // Если есть дата выздоровления, показываем "Здоров"
+                    if (lastEntry.recoveryDate) {
+                        document.getElementById('currentState').innerHTML = '✅ Здоров';
+                    } else {
+                        document.getElementById('currentState').innerHTML = lastEntry.title || 'Здоров';
+                    }
                 } else {
                     document.getElementById('currentTemp').innerHTML = '36.6°C';
                     document.getElementById('currentWeight').innerHTML = (children[selectedChild].weight || '--') + ' кг';
@@ -2320,8 +2307,13 @@
                     
                     if (lastEntry) {
                         temp = (lastEntry.temps?.day3?.to || lastEntry.temps?.day2?.to || lastEntry.temps?.day1?.to || '36.6') + '°C';
-                        state = lastEntry.title || 'Здоров';
-                        weight = lastEntry.weight ? lastEntry.weight + ' кг' : (child.weight || '--') + ' кг';
+                        
+                        // Если есть дата выздоровления, показываем "Здоров"
+                        if (lastEntry.recoveryDate) {
+                            state = '✅ Здоров';
+                        } else {
+                            state = lastEntry.title || 'Здоров';
+                        }
                     }
                     
                     const plannedVaccines = vaccines.filter(v => v.childIndex === childIndex && v.status === 'planned')
@@ -2554,7 +2546,6 @@
                         <div class="history-date">${date}</div>
                         ${durationHtml}
                         ${e.recoveryDate ? `<div class="history-recovery">✨ Выздоровление: ${new Date(e.recoveryDate).toLocaleDateString()}</div>` : ''}
-                        ${e.weight ? `<div class="history-date">⚖️ Вес: ${e.weight} кг</div>` : ''}
                         ${tempsHtml}
                         ${medicinesHtml}
                         ${prescriptionHtml}
@@ -2600,7 +2591,7 @@
 
         // Экспорт
         function exportCSV() {
-            let csv = 'Дата;Ребенок;Диагноз;Температура 1й;Температура 2й;Температура 3й;Вес;Выздоровление;Длительность;Назначения;Лекарства\n';
+            let csv = 'Дата;Ребенок;Диагноз;Температура 1й;Температура 2й;Температура 3й;Выздоровление;Длительность;Назначения;Лекарства\n';
             entries.forEach(e => {
                 const child = children[e.childIndex]?.name || 'Неизвестно';
                 const antibiotics = e.medicines?.filter(m => m.isAntibiotic).map(m => m.name).join(', ') || '';
@@ -2614,7 +2605,7 @@
                     duration = diffDays;
                 }
                 
-                csv += `"${new Date(e.date).toLocaleString()}";"${child}";"${e.title || ''}";"${e.temps?.day1?.to || ''}";"${e.temps?.day2?.to || ''}";"${e.temps?.day3?.to || ''}";"${e.weight || ''}";"${e.recoveryDate || ''}";"${duration}";"${e.prescription || ''}";"${antibiotics}"\n`;
+                csv += `"${new Date(e.date).toLocaleString()}";"${child}";"${e.title || ''}";"${e.temps?.day1?.to || ''}";"${e.temps?.day2?.to || ''}";"${e.temps?.day3?.to || ''}";"${e.recoveryDate || ''}";"${duration}";"${e.prescription || ''}";"${antibiotics}"\n`;
             });
             
             const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv' });
